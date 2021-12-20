@@ -15,8 +15,8 @@ public:
     Dag();
     Dag(vector<GateNode>, int);
     ~Dag();
-    int* topologicalSort();
-    int* frontLayer();
+    int* topologicalSort(Dag* dag);
+    int* frontLayer(Dag* dag);
     Dag* firstKlayers(int K);
     Dag* deleteNodesWithID(int nodeID);
 
