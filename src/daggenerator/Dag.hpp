@@ -13,7 +13,7 @@
 class Dag{
 public:
     Dag();
-    Dag(vector<GateNode>);
+    Dag(vector<GateNode>, int);
     ~Dag();
     int* topologicalSort();
     int* frontLayer();
