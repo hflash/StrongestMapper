@@ -11,6 +11,8 @@ environment::environment(string name,vector<vector<int>>coupling) {
     qubitNum=qasm_parser.GetQubitNum();
     gateNum=qasm_parser.GetGateNum();
     gateInfo=qasm_parser.GetGateInfo();
+
+
 }
 
 int environment::GetQubitNum() {
