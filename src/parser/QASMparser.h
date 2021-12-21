@@ -16,8 +16,9 @@ using namespace std;
 struct GateNode
 {
     string Name;
-    int qubit1;
-    int qubit2;
+    int controlQubit;
+    int targetQubit;
+    int gateId;
 };
 
 class QASMparser {
