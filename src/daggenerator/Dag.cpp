@@ -57,6 +57,7 @@ int *Dag::topologicalSort(Dag* dag)
                 topo_list.push_back(target_child_id);
             }
         }
+        q.pop();
     }
     int topological_list[qubit_num];
     for(int i=0; i<qubit_num; i++){
