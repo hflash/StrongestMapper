@@ -9,9 +9,9 @@ Dag::Dag()
 {
     std::cout<<"Dag initialized without gates!"<<endl;
 }
-Dag::Dag(vector<GateNode> Gates, int qubitNum)
+Dag::Dag(vector<GateNode> GateInfo, int qubitNum)
 {
-    Dag::gate_num = Gates.size();
+    Dag::gate_num = GateInfo.size();
     DagNode* node = new DagNode;
     root = node;
     root->targetParent = NULL;
@@ -20,14 +20,14 @@ Dag::Dag(vector<GateNode> Gates, int qubitNum)
     root->criticality = 0;
     vector<GateNode>::iterator it;
     int* qubitState = new int[qubitNum];
-    for(it = Gates.begin();it != Gates.end(); it ++)
+    for(it = GateInfo.begin();it != GateInfo.end(); it ++)
     {
         DagNode* node = new DagNode;
-
+        node->gateID =
     }
 }
 
-int *Dag::topologicalSort(Dag* dag)
+int* Dag::topologicalSort(Dag* dag)
 {
     vector<int> topo_list;
     DagNode* root = dag->root;
@@ -65,8 +65,34 @@ int *Dag::topologicalSort(Dag* dag)
     }
     return topological_list;
 }
-int* frontLayer(Dag* dag)
+int* Dag::frontLayer()
 {
-    vector<GateNode>::iterator it;
-//    for(it = dag->root)
+    int* front[100] = {};
+    vector<DagNode*> nodes = this->root->rootChild;
+    vector<DagNode*>::iterator it;
+    int i = 0;
+    for(it = nodes.begin();it != nodes.end();it++)
+    {
+        *front[i] = (*it)->gateID;
+        i++;
+    }
+    return *front;
+}
+void Dag::deleteNodesWithID(int nodeID)
+{
+    vector<DagNode*> nodes = this->root->rootChild;
+    vector<DagNode*>::iterator it;
+    for(it = nodes.begin();it != nodes.end();it++)
+    {
+        if(nodeID == (*it)->gateID)
+        {
+            if((*((*it)->targetChild)->controlParent == this->root)&&(*((*it)->targetChild)->targetParent == NULL))
+                nodes.push_back((*it)->targetChild);
+            if ((*it)->controlChild != NULL){
+                nodes.push_back((*it)->controlChild);
+            }
+            //if the child gate is not
+            nodes.erase(it);
+        }
+    }
 }

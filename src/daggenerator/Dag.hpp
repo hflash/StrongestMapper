@@ -8,6 +8,8 @@
 
 #include "../parser/QASMparser.h"
 #include "DagNode.hpp"
+#include "../parser/environment.h"
+#include <map>
 
 
 class Dag{
@@ -18,7 +20,7 @@ public:
     int* topologicalSort(Dag* dag);
     int* frontLayer(Dag* dag);
     Dag* firstKlayers(int K);
-    Dag* deleteNodesWithID(int nodeID);
+    void deleteNodesWithID(int nodeID);
 
 private:
     int gate_num;
