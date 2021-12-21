@@ -42,55 +42,61 @@ void QASMparser::GenerateGateInfo() {
     ifstream read_file;
     read_file.open(this->filename, ios::binary);
     string line;
+    int gateid = 1;
     while (getline(read_file, line)) {
         if (regex_search(line, regex("cx"))){
             GateNode gate_node;
             gate_node.Name="cx";
+            gate_node.gateId=gateid;
             regex pattern(R"(\d+)");
             sregex_iterator iter(line.begin(), line.end(), pattern);
-            gate_node.qubit1=stoi((*iter)[0]);
+            gate_node.controlQubit=stoi((*iter)[0]);
             iter++;
-            gate_node.qubit2=stoi((*iter)[0]);
+            gate_node.targetQubit=stoi((*iter)[0]);
             this->GateInfo.push_back(gate_node);
             this->gate_num++;
         }
         else if (regex_search(line, regex("x"))){
             GateNode gate_node;
             gate_node.Name="x";
+            gate_node.gateId=gateid;
             regex pattern(R"(\d+)");
             sregex_iterator iter(line.begin(), line.end(), pattern);
-            gate_node.qubit1=stoi((*iter)[0]);
-            gate_node.qubit2=-1;
+            gate_node.targetQubit=stoi((*iter)[0]);
+            gate_node.controlQubit=-1;
             this->GateInfo.push_back(gate_node);
             this->gate_num++;
         }
         else if (regex_search(line, regex("h"))){
             GateNode gate_node;
             gate_node.Name="h";
+            gate_node.gateId=gateid;
             regex pattern(R"(\d+)");
             sregex_iterator iter(line.begin(), line.end(), pattern);
-            gate_node.qubit1=stoi((*iter)[0]);
-            gate_node.qubit2=-1;
+            gate_node.targetQubit=stoi((*iter)[0]);
+            gate_node.controlQubit=-1;
             this->GateInfo.push_back(gate_node);
             this->gate_num++;
         }
         else if (regex_search(line, regex("tdg"))){
             GateNode gate_node;
             gate_node.Name="tdg";
+            gate_node.gateId=gateid;
             regex pattern(R"(\d+)");
             sregex_iterator iter(line.begin(), line.end(), pattern);
-            gate_node.qubit1=stoi((*iter)[0]);
-            gate_node.qubit2=-1;
+            gate_node.targetQubit=stoi((*iter)[0]);
+            gate_node.controlQubit=-1;
             this->GateInfo.push_back(gate_node);
             this->gate_num++;
         }
         else if (regex_search(line, regex("t"))){
             GateNode gate_node;
             gate_node.Name="t";
+            gate_node.gateId=gateid;
             regex pattern(R"(\d+)");
             sregex_iterator iter(line.begin(), line.end(), pattern);
-            gate_node.qubit1=stoi((*iter)[0]);
-            gate_node.qubit2=-1;
+            gate_node.targetQubit=stoi((*iter)[0]);
+            gate_node.controlQubit=-1;
             this->GateInfo.push_back(gate_node);
             this->gate_num++;
         }
@@ -99,6 +105,7 @@ void QASMparser::GenerateGateInfo() {
             sregex_iterator iter(line.begin(), line.end(), pattern);
             this->qubit_num=stoi((*iter)[0]);
         }
+        gateid++;
         //cout << "line:" << line.c_str() << endl;
     }
 }
