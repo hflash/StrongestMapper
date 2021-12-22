@@ -36,7 +36,7 @@ private:
     string filename;
     int gate_num;
     int qubit_num;
-    map<int,GateNode>GateInfo;
+    map<int,GateNode> GateInfo;
     void ReadGate();
 
 };

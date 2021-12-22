@@ -12,13 +12,13 @@
 
 using namespace std;
 
-class environment {
+class Environment {
 private:
     int qubitNum;
     int gateNum;
     int dagDepth;
     vector<vector<int>> couplingGraph;
-    vector<GateNode> gateInfo;
+    map<int,GateNode> gateInfo;
     vector<vector<int>> gateDag;
     vector<int> topoGate;
 public:
@@ -26,12 +26,13 @@ public:
     int GetGateNum();
     int GetDagDepth();
     vector<vector<int>> GetCouplingGraph();
-    vector<GateNode> GetGateInfo();
+    map<int,GateNode> GetGateInfo();
     vector<int> GetTopoGate();
     //GateNode 补充critical的值,depth-row,删除ID
     //gateInfo map<ID:GateNode>
     //给定ID，找到其前驱后继
-    environment(string name,vector<vector<int>> coupling);
+    int* getParentsChildrenByID(int gateID);
+    Environment(string name,vector<vector<int>> coupling);
 
 };
 
