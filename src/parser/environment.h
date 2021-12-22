@@ -20,7 +20,6 @@ private:
     vector<vector<int>> couplingGraph;
     vector<GateNode> gateInfo;
     vector<vector<int>> gateDag;
-    vector<vector<int>> topoGateDag;
     vector<int> topoGate;
 public:
     int GetQubitNum();
@@ -28,11 +27,11 @@ public:
     int GetDagDepth();
     vector<vector<int>> GetCouplingGraph();
     vector<GateNode> GetGateInfo();
-    vector<vector<int>> GetGateDag();
     vector<int> GetTopoGate();
-
+    //GateNode 补充critical的值,depth-row,删除ID
+    //gateInfo map<ID:GateNode>
+    //给定ID，找到其前驱后继
     environment(string name,vector<vector<int>> coupling);
-
 
 };
 

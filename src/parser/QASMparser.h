@@ -19,7 +19,7 @@ struct GateNode
     string Name;
     int controlQubit;
     int targetQubit;
-    int gateId;
+    int criticality;
 };
 
 class QASMparser {
@@ -30,13 +30,13 @@ public:
     int GetQubitNum();
     int GetGateNum();
 
-    vector<GateNode> GetGateInfo();
+    map<int,GateNode> GetGateInfo();
     void GenerateGateInfo();
 private:
     string filename;
     int gate_num;
     int qubit_num;
-    vector<GateNode> GateInfo;
+    map<int,GateNode>GateInfo;
     void ReadGate();
 
 };
