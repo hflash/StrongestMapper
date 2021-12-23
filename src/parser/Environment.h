@@ -22,16 +22,14 @@ private:
     vector<vector<int>> gateDag;
     vector<int> topoGate;
 public:
-    int GetQubitNum();
-    int GetGateNum();
-    int GetDagDepth();
-    vector<vector<int>> GetCouplingGraph();
-    map<int,GateNode> GetGateInfo();
-    vector<int> GetTopoGate();
-    //GateNode 补充critical的值,depth-row,删除ID
-    //gateInfo map<ID:GateNode>
-    //给定ID，找到其前驱后继
-    int* getParentsChildrenByID(int gateID);
+    int getQubitNum();
+    int getGateNum();
+    int getDagDepth();
+    vector<vector<int>> getCouplingGraph();
+    map<int,GateNode> getGateInfo();
+    vector<int> getTopoGate();
+    vector<int> getParentsByID(int gateID);
+    vector<int> getChildrenByID(int gateID);
     Environment(string name,vector<vector<int>> coupling);
 
 };

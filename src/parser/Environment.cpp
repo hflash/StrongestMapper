@@ -82,10 +82,9 @@ Environment::Environment(string name, vector<vector<int>> coupling) {
         }
     }
     // update the criticality of GateNodes
-    for (int i = 0; i < this->gateDag.size(); i++){
-        for(int j = 0; j < this->dagDepth; j++)
-            if(this->gateDag[i][j] != 0)
-            {
+    for (int i = 0; i < this->gateDag.size(); i++) {
+        for (int j = 0; j < this->dagDepth; j++)
+            if (this->gateDag[i][j] != 0) {
                 this->gateInfo.find(this->gateDag[i][j])->second.criticality = dagDepth - j;
             }
     }
@@ -106,40 +105,93 @@ Environment::Environment(string name, vector<vector<int>> coupling) {
             }
         }
     }
-    cout<<"topological sort of gates"<<endl;
+    cout << "topological sort of gates" << endl;
     for (int i = 0; i < topoGate.size(); i++) {
         cout << topoGate[i] << " ";
     }
     cout << endl;
 }
 
-int Environment::GetQubitNum() {
+int Environment::getQubitNum() {
     return this->qubitNum;
 }
 
-int Environment::GetGateNum() {
+int Environment::getGateNum() {
     return this->gateNum;
 }
 
-map<int,GateNode> Environment::GetGateInfo() {
+map<int, GateNode> Environment::getGateInfo() {
     return this->gateInfo;
 }
 
-vector<vector<int>> Environment::GetCouplingGraph() {
+vector<vector<int>> Environment::getCouplingGraph() {
     return this->couplingGraph;
 }
 
-int Environment::GetDagDepth() {
+int Environment::getDagDepth() {
     return this->dagDepth;
 }
 
-vector<int> Environment::GetTopoGate() {
+vector<int> Environment::getTopoGate() {
     return this->topoGate;
 }
 
-int *Environment::getParentsChildrenByID(int gateID) {
-    int pc[4] = {0};
+vector<int> Environment::getParentsByID(int gateID) {
+    vector<int> parents;
     int cycles = this->gateInfo.find(gateID)->second.criticality;
-//    for (int i = 0; i < )
-    return nullptr;
+    int parentSearchRange = this->dagDepth - cycles;
+    int controlQubit = this->gateInfo.find(gateID)->second.controlQubit;
+    int targetQubit = this->gateInfo.find(gateID)->second.targetQubit;
+    bool target = false;
+    bool control = false;
+    for (int i = parentSearchRange - 1; i > -1; i--) {
+        if(!target && (this->gateDag[targetQubit][i] != 0))
+        {
+            parents.push_back(this->gateDag[targetQubit][i]);
+            target = true;
+        }
+        if(!control && controlQubit != -1){
+            if((this->gateDag[controlQubit][i] != 0)){
+                parents.push_back(gateDag[controlQubit][i]);
+                control = true;
+            }
+        }
+        else{
+            control = true;
+        }
+    }
+    if (parents.size() == 2 && (parents[0] == parents[1])){
+        parents.pop_back();
+    }
+    return parents;
+}
+
+vector<int> Environment::getChildrenByID(int gateID){
+    vector<int> children;
+    int cycles = this->gateInfo.find(gateID)->second.criticality;
+    int childrenSearchRange = this->dagDepth - cycles - 1;
+    int controlQubit = this->gateInfo.find(gateID)->second.controlQubit;
+    int targetQubit = this->gateInfo.find(gateID)->second.targetQubit;
+    bool target = false;
+    bool control = false;
+    for (int i = 0; i < childrenSearchRange; i++) {
+        if(!target && (this->gateDag[targetQubit][i+dagDepth-cycles+1] != 0))
+        {
+            children.push_back(this->gateDag[targetQubit][i+dagDepth-cycles+1]);
+            target = true;
+        }
+        if(!control && controlQubit != -1){
+            if((this->gateDag[controlQubit][i+dagDepth-cycles+1] != 0)){
+                children.push_back(gateDag[controlQubit][i+dagDepth-cycles+1]);
+                control = true;
+            }
+        }
+        else{
+            control = true;
+        }
+    }
+    if (children.size() == 2 && (children[0] == children[1])){
+        children.pop_back();
+    }
+    return children;
 }
