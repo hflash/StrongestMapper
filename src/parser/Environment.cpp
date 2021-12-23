@@ -120,10 +120,6 @@ int Environment::getGateNum() {
     return this->gateNum;
 }
 
-map<int, GateNode> Environment::getGateInfo() {
-    return this->gateInfo;
-}
-
 vector<vector<int>> Environment::getCouplingGraph() {
     return this->couplingGraph;
 }
@@ -134,6 +130,15 @@ int Environment::getDagDepth() {
 
 vector<int> Environment::getTopoGate() {
     return this->topoGate;
+}
+
+vector<vector<int>> Environment::getNewKLayerDag(vector<int>, int)
+{
+
+}
+vector<int> Environment::getFrontLayer(vector<vector<int>> gateDag)
+{
+
 }
 
 vector<int> Environment::getParentsByID(int gateID) {
@@ -195,3 +200,5 @@ vector<int> Environment::getChildrenByID(int gateID){
     }
     return children;
 }
+
+

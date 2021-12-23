@@ -9,10 +9,10 @@ int main() {
     vector<vector<int>> coupling;
     Environment env = Environment(fname,coupling);
     //test of find parents and children of a gate by ID
-    for(int i = 0; i < env.getParentsByID(15).size();i++)
-        cout<<env.getParentsByID(15)[i]<<endl;
-    for(int i = 0; i < env.getParentsByID(15).size();i++)
-        cout<<env.getChildrenByID(15)[i]<<endl;
+    for(int i = 0; i < env.getParentsByID(27).size();i++)
+        cout<<env.getParentsByID(27)[i]<<endl;
+    for(int i = 0; i < env.getParentsByID(27).size();i++)
+        cout<<env.getChildrenByID(27)[i]<<endl;
 
 
     //test of dag table and ID value  giving

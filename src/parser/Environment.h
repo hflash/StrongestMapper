@@ -18,18 +18,19 @@ private:
     int gateNum;
     int dagDepth;
     vector<vector<int>> couplingGraph;
-    map<int,GateNode> gateInfo;
     vector<vector<int>> gateDag;
     vector<int> topoGate;
 public:
+    map<int,GateNode> gateInfo;
     int getQubitNum();
     int getGateNum();
     int getDagDepth();
     vector<vector<int>> getCouplingGraph();
-    map<int,GateNode> getGateInfo();
     vector<int> getTopoGate();
     vector<int> getParentsByID(int gateID);
     vector<int> getChildrenByID(int gateID);
+    vector<vector<int>> getNewKLayerDag(vector<int>, int);
+    vector<int> getFrontLayer(vector<vector<int>> gateDag);
     Environment(string name,vector<vector<int>> coupling);
 
 };
