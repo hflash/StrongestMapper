@@ -26,23 +26,23 @@ public:
     //initail mapping
     vector<int>* initialMapping;
     //logical on physical
-    vector<int> mapping;
+    vector<int> l2qMapping;
     //physical on logical
-    vector<int> polMapping;
+    vector<int> p2lMapping;
     //logical qubit state busy time
-    vector<int> logQubitState;
+    vector<int> logicalQubitState;
     //dagTable
     vector<vector<int>> dagTable;
     //read gate: front layer in dag, logical qubit free, cx: two qubit connect
     vector<int> readyGate;
     //heuristic value and timestamp
-    int cost;
+    int cost1;
+    int cost2;
     //unscheduled gate
     vector<int> remainGate;
     //action path
     vectot<vector<ScheduledGate>> actionPath;
-
-    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dTable);
+    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable);
 
 };
 
