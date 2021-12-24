@@ -7,13 +7,17 @@
 #include<algorithm>
 
 vector<vector<int>> Environment::generateDag(vector<int> gateIDs) {
+//    cout<<"begin----------------------------what is gates:\n";
+//    for(int i=0;i<gateIDs.size();i++){
+//        cout<<gateIDs[i]<<" ";
+//    }
+//    cout<<endl;
     vector<vector<int>> newDag;
     for (int i = 0; i < this->qubitNum; i++) {
         vector<int> gateOnQubit;
         newDag.push_back(gateOnQubit);
     }
-    map<int, GateNode>::iterator it;
-    for(int i=0;i<gateIDs.size();i++){
+    for(int i=0;i<gateIDs.size();i++) {
         int nowgateid = gateIDs[i];
         int controlQubit = this->gateInfo.find(nowgateid)->second.controlQubit;
         int targetQubit = this->gateInfo.find(nowgateid)->second.targetQubit;
@@ -34,6 +38,7 @@ vector<vector<int>> Environment::generateDag(vector<int> gateIDs) {
         } else {
             newDag[targetQubit].push_back(nowgateid);
         }
+    }
         int nowDagDepth=0;
         for (int i = 0; i < newDag.size(); i++) {
             if (nowDagDepth < newDag[i].size()) {
@@ -59,7 +64,17 @@ vector<vector<int>> Environment::generateDag(vector<int> gateIDs) {
             }
             cout << endl;
         }
-    }
+//    cout<<"begin---------------------\n";
+//    for(int i=0;i<newDag.size();i++){
+//        cout<<"i="<<i<<" ";
+//        for(int j=0;j<newDag[i].size();j++){
+//            cout<<newDag[i][j]<<" ";
+//        }
+//        cout<<endl;
+//    }
+//    cout<<"end -------------------------\n";
+    return newDag;
+
 }
 
 Environment::Environment(string name, vector<vector<int>> coupling) {
