@@ -31,8 +31,8 @@ public:
     vector<int> getTopoGate();
     vector<int> getParentsByID(int gateID);
     vector<int> getChildrenByID(int gateID);
-    vector<vector<int>> getNewKLayerDag(vector<int> gateIDs, int K);
-    vector<int> getFrontLayer(vector<vector<int>> gateDag);
+    vector<vector<int>> getNewKLayerDag(vector<int> executedgateIDs, int K);
+    vector<int> getFrontLayer();
     Environment(string name,vector<vector<int>> coupling);
 
 };

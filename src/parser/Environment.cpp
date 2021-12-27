@@ -185,7 +185,7 @@ vector<int> Environment::getTopoGate() {
     return this->topoGate;
 }
 
-vector<vector<int>> Environment::getNewKLayerDag(vector<int> gateIDs, int K)
+vector<vector<int>> Environment::getNewKLayerDag(vector<int> executedgateIDs,int K)
 {
     vector<vector<int>> newKLayerDag;
     for (int i = 0; i < this->qubitNum; i++) {
@@ -193,14 +193,25 @@ vector<vector<int>> Environment::getNewKLayerDag(vector<int> gateIDs, int K)
         newKLayerDag.push_back(gateOnQubit);
     }
     map<int, GateNode>::iterator it;
-    for(int i=0;i<gateIDs.size();i++) {
-        int nowgateid = gateIDs[i];
+    for(int i=0;i<topoGate.size();) {
+        int nowgateid = topoGate[i];
+        bool flag = false;
+        //decide if nowgateid in executedgateIDs
+        for(int j=0; j<executedgateIDs.size(); j++){
+            if(nowgateid  == executedgateIDs[j]){
+                i++;
+                flag = true;
+                break;
+            }
+        }
+        if(flag)
+            continue;
         int controlQubit = this->gateInfo.find(nowgateid)->second.controlQubit;
         int targetQubit = this->gateInfo.find(nowgateid)->second.targetQubit;
         if (this->gateInfo.find(nowgateid)->second.Name == "cx") {
             int controlQubitTime = newKLayerDag[controlQubit].size();
             int targetQubitTime = newKLayerDag[targetQubit].size();
-            if(controlQubitTime > K && targetQubitTime > K) {
+            if(controlQubitTime == K || targetQubitTime == K) {
                 break;
             }
             if (controlQubitTime > targetQubitTime) {
@@ -215,8 +226,12 @@ vector<vector<int>> Environment::getNewKLayerDag(vector<int> gateIDs, int K)
             newKLayerDag[targetQubit].push_back(nowgateid);
             newKLayerDag[controlQubit].push_back(nowgateid);
         } else {
+            int targetQubitTime = newKLayerDag[targetQubit].size();
+            if(targetQubitTime == K)
+                break;
             newKLayerDag[targetQubit].push_back(nowgateid);
         }
+        i++;
     }
     int nowDagDepth=0;
     for (int i = 0; i < newKLayerDag.size(); i++) {
@@ -242,16 +257,10 @@ vector<vector<int>> Environment::getNewKLayerDag(vector<int> gateIDs, int K)
         }
         cout << endl;
     }
-
-    //get the first K layer(delete the lats element in each qubit)
-    for(int i = 0; i < this->qubitNum; i++){
-        newKLayerDag[i].pop_back();
-    }
-    assert(nowDagDepth == K);
     return newKLayerDag;
 }
 
-vector<int> Environment::getFrontLayer(vector<vector<int>> gateDag)
+vector<int> Environment::getFrontLayer()
 {
     vector<int> frontLayer;
     for(int i = 0; i < this->qubitNum; i++){
