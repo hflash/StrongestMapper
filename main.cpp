@@ -13,7 +13,9 @@ int main() {
         cout<<env.getParentsByID(27)[i]<<endl;
     for(int i = 0; i < env.getParentsByID(27).size();i++)
         cout<<env.getChildrenByID(27)[i]<<endl;
-
+    vector<int> exeGateIDs;
+    vector<vector<int>> kdag = env.getNewKLayerDag(exeGateIDs, 10);
+    vector<int> front = env.getFrontLayer(kdag);
 
     //test of dag table and ID value  giving
 //    map<int, GateNode> gateInfo = env.GetGateInfo();

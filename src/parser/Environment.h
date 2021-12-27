@@ -29,12 +29,21 @@ public:
     int getDagDepth();
     vector<vector<int>> getCouplingGraph();
     vector<int> getTopoGate();
+
+    //Return the parents for a given gate ID
     vector<int> getParentsByID(int gateID);
+    //Return the children for a given gate ID
     vector<int> getChildrenByID(int gateID);
+
+    /*
+     * For all gates, ignore the gate of IDs in GateIDs,
+     * generate new K layer dag from the original gates set
+     */
     vector<vector<int>> getNewKLayerDag(vector<int> gateIDs, int K);
+
+    //For a given dag table, return its first layer gate IDs
     vector<int> getFrontLayer(vector<vector<int>> gateDag);
     Environment(string name,vector<vector<int>> coupling);
-
 };
 
 
