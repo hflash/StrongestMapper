@@ -17,11 +17,12 @@ private:
     int qubitNum;
     int gateNum;
     int dagDepth;
-    vector<vector<int>> couplingGraph;
     vector<vector<int>> gateDag;
     vector<int> topoGate;
     vector<vector<int>> generateDag(vector<int> gateIDs);
 public:
+    vector<vector<int>> couplingGraph;
+    vector<vector<int>> MakeCouplingGraph(vector<vector<int>> couplingList);
     map<int,GateNode> gateInfo;
     int getQubitNum();
     int getGateNum();

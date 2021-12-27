@@ -18,10 +18,17 @@ struct ScheduledGate{
 
 class SearchNode {
 private:
+    map<int,int> gateCriticality;
     void GetReadyGate(Environment* env,vector<vector<int>> dagTable);
     void cost1();
+    void cost2();
+    void gate2Critiality();
+    int findFreeTimePhysical(int physicalQubit);
+    int busyTime();
+    vector<int> findFrontTwoQubitsGates();
 
 public:
+    Environment * environment;
     int qubitNum;
     //initail mapping
     vector<int>* initialMapping;
@@ -42,7 +49,7 @@ public:
     vector<int> remainGate;
     //action path
     vectot<vector<ScheduledGate>> actionPath;
-    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable);
+    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable,Environment *env);
 
 };
 

@@ -75,6 +75,30 @@ vector<vector<int>> Environment::generateDag(vector<int> gateIDs) {
 
 }
 
+vector<vector<int>> Environment::MakeCouplingGraph(vector<vector<int>> coupling) {
+    vector<int> row(qubitNum,999);
+    vector<vector<int>> couplingGraph;
+    for(int i=0;i<qubitNum;i++){
+        couplingGraph.push_back(row);
+    }
+    for (int i=0;i<coupling.size();i++){
+        int a=coupling[i][0];
+        int b=coupling[i][1];
+        couplingGraph[a][b]=1;
+        couplingGraph[b][a]=1;
+    }
+    for (int i=0;i<qubitNum;i++){
+        for(int j=0;j<qubitNum;j++){
+            for(int k=0;k<qubitNum;k++){
+                if(couplingGraph[i][k]+couplingGraph[k][j]<couplingGraph[i][j]){
+                    couplingGraph[i][j]=couplingGraph[i][k]+couplingGraph[k][j];
+                }
+            }
+        }
+    }
+    return couplingGraph;
+}
+
 Environment::Environment(string name, vector<vector<int>> coupling) {
     string filename = name;
     cout << filename << endl;
