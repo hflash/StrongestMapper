@@ -17,7 +17,7 @@ SearchNode::SearchNode(vector<int> *initMapping, vector<int> nowMapping, vector<
     }
     this->readyGate = this->GetReadyGate();
     this->gate2Critiality();
-    this->ComputeCost1;
+    this->computeCost1;
     this->remainGate=this->findRemainGates();
     this->actionPath=path;
 }
@@ -124,7 +124,7 @@ vector<int> SearchNode::findFrontTwoQubitsGates() {
     return frontTwoQubitsGate;
 }
 
-void SearchNode::ComputeCost1() {
+void SearchNode::computeCost1() {
     int waitTime = busyTime();
     int cost=waitTime;
     vector<int> frontLayer = this->findFrontTwoQubitsGates();

@@ -339,4 +339,6 @@ vector<int> Environment::getChildrenByID(int gateID){
     return children;
 }
 
-
+vector<vector<int>> Environment::getGateDag() {
+    return this->gateDag;
+}

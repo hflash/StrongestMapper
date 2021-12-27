@@ -20,8 +20,8 @@ class SearchNode {
 private:
     map<int,int> gateCriticality;
     void GetReadyGate(Environment* env,vector<vector<int>> dagTable);
-    void ComputeCost1();
-    void ComputeCost2();
+    void computeCost1();
+    void computeCost2();
     void gate2Critiality();
     void findRemainGates();
     int findFreeTimePhysical(int physicalQubit);
