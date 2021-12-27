@@ -20,15 +20,17 @@ class SearchNode {
 private:
     map<int,int> gateCriticality;
     void GetReadyGate(Environment* env,vector<vector<int>> dagTable);
-    void cost1();
-    void cost2();
+    void ComputeCost1();
+    void ComputeCost2();
     void gate2Critiality();
+    void findRemainGates();
     int findFreeTimePhysical(int physicalQubit);
     int busyTime();
     vector<int> findFrontTwoQubitsGates();
 
 public:
     Environment * environment;
+    int timeStamp;
     int qubitNum;
     //initail mapping
     vector<int>* initialMapping;
@@ -49,7 +51,7 @@ public:
     vector<int> remainGate;
     //action path
     vector<vector<ScheduledGate>> actionPath;
-    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable,Environment *env);
+    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable,Environment *env,int nowtime,vectot<vector<ScheduledGate>> path);
 
 };
 

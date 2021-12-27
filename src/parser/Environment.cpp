@@ -260,7 +260,7 @@ vector<vector<int>> Environment::getNewKLayerDag(vector<int> executedgateIDs,int
     return newKLayerDag;
 }
 
-vector<int> Environment::getFrontLayer()
+vector<int> Environment::getFrontLayer(vector<vector<int>> gateDag)
 {
     vector<int> frontLayer;
     for(int i = 0; i < this->qubitNum; i++){
