@@ -1,24 +1,26 @@
 //
-// Created by mingz on 2021/12/23.
+// Created by mingz on 2021/12/28.
 //
 
 #include "SearchNode.h"
 
-SearchNode::SearchNode(vector<int> *initMapping, vector<int> nowMapping, vector<vector<int>> dTable, Environment *env,int nowtime,vectot<vector<ScheduledGate>> path){
-    this->mapping = nowMapping;
+SearchNode::SearchNode(vector<int> initMapping, vector<int> nowMapping,vector<int>qubitState, vector<vector<int>> dTable, Environment *env,int nowtime,vector<vector<ScheduledGate>> path){
+    this->l2pMapping = nowMapping;
     this->initialMapping = initMapping;
     this->qubitNum = nowMapping.size();
-    this->polMapping.resize(this->qubitNum);
+    this->p2lMapping.resize(this->qubitNum);
     this->dagTable = dTable;
     this->environment = env;
+    this->logicalQubitState=qubitState;
     this->timeStamp=nowtime;
+    this->p2lMapping.resize(this->qubitNum);
     for (int i = 0; i < qubitNum; i++) {
-        this->polMapping[this->mapping[i]] = i;
+        this->p2lMapping[this->l2pMapping[i]] = i;
     }
-    this->readyGate = this->GetReadyGate();
+    this->GetReadyGate();
     this->gate2Critiality();
-    this->computeCost1;
-    this->remainGate=this->findRemainGates();
+    this->computeCost1();
+    this->findRemainGates();
     this->actionPath=path;
 }
 
@@ -36,28 +38,36 @@ void SearchNode::findRemainGates() {
 }
 
 void SearchNode::GetReadyGate() {
-    map<int, GateNode> *gateNodeTable;
+    map<int, GateNode> gateNodeTable;
     gateNodeTable = this->environment->gateInfo;
-    vector<int> frontLayer;
     vector<int> frontLayerGate = this->environment->getFrontLayer(this->dagTable);
     for (int i = 0; i < frontLayerGate.size(); i++) {
-        GateNode nowGate = this->environment->gateInfo.find(frontLayerGate[i])->second;
-        if (nowGate.controlQubit == -1 && this->logicalQubitState[nowGate.targetQubit] == 0) {
-            frontLayer.push_back(frontLayerGate[i]);
+        int gateid=frontLayerGate[i];
+        GateNode nowGate = this->environment->gateInfo.find(gateid)->second;
+        //single qubit gate
+        int ii=this->l2pMapping[nowGate.targetQubit];
+        int jj=this->l2pMapping[nowGate.controlQubit];
+        if (nowGate.controlQubit == -1) {
+            if(this->logicalQubitState[nowGate.targetQubit] == 0){
+                this->readyGate.push_back(gateid);
+            }
         }
-        if (this->logicalQubitState[nowGate.targetQubit] == 0 && this->logicalQubitState[nowGate.controlQubit] == 0 &&
-            this->environment->couplingGraph[l2qMapping[nowGate.targetQubit]][l2qMapping[nowGate.controlQubit]] == 1) {
-            frontLayer.push_back(frontLayerGate[i]);
+        //two qubits gate
+        else if (this->logicalQubitState[nowGate.targetQubit] == 0 && this->logicalQubitState[nowGate.controlQubit] == 0 &&
+            this->environment->couplingGraph[ii][jj] == 1) {
+            this->readyGate.push_back(gateid);
+        }
+        else{
+
         }
     }
-    return frontLayer;
 }
 
 void SearchNode::gate2Critiality() {
     int depth = this->dagTable[0].size();
     for (int i = 0; i < depth; i++) {
         for (int j = 0; j < this->dagTable.size(); j++) {
-            int gateid = dagTable[i][j];
+            int gateid = dagTable[j][i];
             if (this->gateCriticality.find(gateid) == this->gateCriticality.end()) {
                 int criticality = depth - i;
                 this->gateCriticality.insert({gateid, criticality});
@@ -80,7 +90,7 @@ int SearchNode::findFreeTimePhysical(int physicalQubit) {
             break;
         }
     }
-    path=path+this->this->logicalQubitState[this->Mapping[physicalQubit]];
+    path=path+this->logicalQubitState[this->l2pMapping[physicalQubit]];
     return path;
 }
 

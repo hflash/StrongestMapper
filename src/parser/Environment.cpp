@@ -98,6 +98,9 @@ vector<vector<int>> Environment::MakeCouplingGraph(vector<vector<int>> coupling)
             }
         }
     }
+    for (int i=0;i<qubitNum;i++){
+        couplingGraph[i][i]=0;
+    }
     return couplingGraph;
 }
 
@@ -111,25 +114,16 @@ Environment::Environment(string name, vector<vector<int>> coupling) {
     this->gateNum = qasm_parser.GetGateNum();
     this->gateInfo = qasm_parser.GetGateInfo();
     //coupling graph
-//    vector<int> row(qubitNum,999);
-//    for(int i=0;i<qubitNum;i++){
-//        couplingGraph.push_back(row);
-//    }
-//    for (int i=0;i<coupling.size();i++){
-//        int a=coupling[i][0];
-//        int b=coupling[i][1];
-//        couplingGraph[a][b]=1;
-//        couplingGraph[b][a]=1;
-//    }
-//    for (int i=0;i<qubitNum;i++){
-//        for(int j=0;j<qubitNum;j++){
-//            for(int k=0;k<qubitNum;k++){
-//                if(couplingGraph[i][k]+couplingGraph[k][j]<couplingGraph[i][j]){
-//                    couplingGraph[i][j]=couplingGraph[i][k]+couplingGraph[k][j];
-//                }
-//            }
-//        }
-//    }
+    this->couplingGraph=this->MakeCouplingGraph(coupling);
+    cout<<"this is the coupling graph : \n";
+    for(int i=0;i<this->couplingGraph.size();i++){
+        for(int j=0;j<this->couplingGraph[0].size();j++){
+            cout<<this->couplingGraph[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+    cout<<"---------------------------------------------"<<endl;
+
     //gate dag
     vector<int> gateOrder;
     map<int,GateNode>::iterator iter;

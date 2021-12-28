@@ -1,14 +1,17 @@
 //
-// Created by mingz on 2021/12/22.
+// Created by mingz on 2021/12/28.
 //
 
 #ifndef STRONGESTMAPPER_SEARCHNODE_H
 #define STRONGESTMAPPER_SEARCHNODE_H
 
+
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include "../parser/Environment.h"
+
+using namespace std;
 
 struct ScheduledGate{
     string gateName;
@@ -19,7 +22,7 @@ struct ScheduledGate{
 class SearchNode {
 private:
     map<int,int> gateCriticality;
-    void GetReadyGate(Environment* env,vector<vector<int>> dagTable);
+    void GetReadyGate();
     void computeCost1();
     void computeCost2();
     void gate2Critiality();
@@ -33,9 +36,9 @@ public:
     int timeStamp;
     int qubitNum;
     //initail mapping
-    vector<int>* initialMapping;
+    vector<int> initialMapping;
     //logical on physical
-    vector<int> l2qMapping;
+    vector<int> l2pMapping;
     //physical on logical
     vector<int> p2lMapping;
     //logical qubit state busy time
@@ -51,7 +54,7 @@ public:
     vector<int> remainGate;
     //action path
     vector<vector<ScheduledGate>> actionPath;
-    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable,Environment *env,int nowtime,vectot<vector<ScheduledGate>> path);
+    SearchNode(vector<int> initMapping,vector<int>nowMapping,vector<int>qubitState,vector<vector<int>> dagTable,Environment *env,int nowtime,vector<vector<ScheduledGate>> path);
 
 };
 
