@@ -51,7 +51,7 @@ public:
     vector<int> remainGate;
     //action path
     vector<vector<ScheduledGate>> actionPath;
-    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable,Environment *env,int nowtime,vectot<vector<ScheduledGate>> path);
+    SearchNode(vector<int>* initMapping,vector<int>nowMapping,vector<vector<int>> dagTable,Environment *env,int nowtime,vector<vector<ScheduledGate>> path);
 
 };
 
