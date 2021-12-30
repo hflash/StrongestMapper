@@ -6,6 +6,7 @@
 
 SearchNode::SearchNode(vector<int> initMapping, vector<int> nowMapping,vector<int>qubitState, vector<vector<int>> dTable, Environment *env,int nowtime,vector<vector<ScheduledGate>> path){
     this->l2pMapping = nowMapping;
+    this->dead=false;
     this->initialMapping = initMapping;
     this->qubitNum = nowMapping.size();
     this->p2lMapping.resize(this->qubitNum);
