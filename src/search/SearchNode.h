@@ -33,6 +33,7 @@ private:
 
 public:
     Environment * environment;
+    bool dead;
     int timeStamp;
     int qubitNum;
     //initail mapping
