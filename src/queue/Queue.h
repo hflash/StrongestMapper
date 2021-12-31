@@ -49,7 +49,7 @@ public:
     //pre-condition: newNode.cost has already been set
     bool push(SearchNode* newNode) {
         numPushed++;
-        if(!newNode->environment->filter(newNode)) {
+        if(!newNode->env->filter(newNode)) {
             bool success = this->pushNode(newNode);
             if(success) {
                 return true;
