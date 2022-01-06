@@ -2,8 +2,8 @@
 // Created by wonder on 2021/12/28.
 //
 
-#ifndef STRONGESTMAPPER_HASHFILTER_H
-#define STRONGESTMAPPER_HASHFILTER_H
+#ifndef STRONGESTMAPPER_HASHFILTER_HPP
+#define STRONGESTMAPPER_HASHFILTER_HPP
 
 #include "Filter.h"
 #include "../search/SearchNode.h"
@@ -146,4 +146,4 @@ public:
     }
 };
 
-#endif //STRONGESTMAPPER_HASHFILTER_H
+#endif //STRONGESTMAPPER_HASHFILTER_HPP

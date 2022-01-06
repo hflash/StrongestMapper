@@ -8,7 +8,7 @@
 #include "../queue/Queue.h"
 #include "../search/SearchNode.h"
 #include "../filter/Filter.h"
-#include "../filter/HashFilter.h"
+#include "../filter/HashFilter.hpp"
 #include "../parser/Environment.h"
 
 class Expander {

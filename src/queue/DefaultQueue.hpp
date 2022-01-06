@@ -2,14 +2,14 @@
 // Created by wonder on 2021/12/27.
 //
 
-#ifndef STRONGESTMAPPER_DEFAULTQUEUE_H
-#define STRONGESTMAPPER_DEFAULTQUEUE_H
+#ifndef STRONGESTMAPPER_DEFAULTQUEUE_HPP
+#define STRONGESTMAPPER_DEFAULTQUEUE_HPP
 #include <iostream>
 #include <queue>
 #include <vector>
 #include "../search/SearchNode.h"
 #include "Queue.h"
-#include "../filter/HashFilter.h"
+#include "../filter/HashFilter.hpp"
 //#include "../filter/Filter.h"
 
 class DefaultQueue :public Queue{
@@ -27,6 +27,7 @@ private:
         nodes.push(newNode);
         return true;
     }
+
 public:
     SearchNode* pop(){
         numPopped++;
@@ -58,4 +59,4 @@ public:
 
 
 
-#endif //STRONGESTMAPPER_DEFAULTQUEUE_H
+#endif //STRONGESTMAPPER_DEFAULTQUEUE_HPP
