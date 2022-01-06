@@ -9,6 +9,7 @@
 #include <iostream>
 
 class Filter{
+public:
     virtual ~Filter() {};
 
     //this should be called after we're done scheduling gates in newNode

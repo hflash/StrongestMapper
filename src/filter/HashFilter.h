@@ -11,6 +11,7 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <cassert>
 
 #ifndef HASH_COMBINE_FUNCTION
 #define HASH_COMBINE_FUNCTION
@@ -41,7 +42,7 @@ inline std::size_t hashFunc(SearchNode *node) {
 
     //combine into hash: logicalQubitState
     for (int x = 0; x < numQubits; x++) {
-        hash_combine(hashResult, node->logicalQubitState[x])
+        hash_combine(hashResult, node->logicalQubitState[x]);
     }
 
     //combine into hash: remainGate
@@ -59,6 +60,9 @@ private:
     std::unordered_map<std::size_t, vector<SearchNode *>> hashmap;
 
 public:
+    HashFilter(){
+
+    }
     HashFilter * createEmptyCopy() {
         HashFilter * f = new HashFilter();
         f->numFiltered = this->numFiltered;
@@ -73,7 +77,7 @@ public:
         * 3. one-to-one comparison of current qubit states
      * */
     bool filter(SearchNode *newNode) {
-        int numQubits = node->environment->getQubitNum();
+        int numQubits = newNode->environment->getQubitNum();
         std::size_t hashResult = hashFunc(newNode);
         for (SearchNode *candidate: this->hashmap[hashResult]) {
             if(candidate->dead){
@@ -137,8 +141,7 @@ public:
                 return true;
             }
         }
-        this->hashmap[hash_result].push_back(newNode);
-        
+        this->hashmap[hashResult].push_back(newNode);
         return false;
     }
 };

@@ -10,6 +10,7 @@
 #include "../search/SearchNode.h"
 #include "Queue.h"
 #include "../filter/HashFilter.h"
+//#include "../filter/Filter.h"
 
 class DefaultQueue :public Queue{
 private:
@@ -20,7 +21,7 @@ private:
             return lhs->cost1 < rhs->cost1;
         }
     };
-    HashFilter queueFilter = new HashFilter();
+    HashFilter* queueFilter = new HashFilter();
     std::priority_queue<SearchNode*, std::vector<SearchNode*>, CmpDefaultQueue> nodes;
     bool pushNode(Node * newNode) {
         nodes.push(newNode);
@@ -36,9 +37,7 @@ public:
     }
     bool push(SearchNode* newNode) {
         numPushed++;
-        filter(newNode);
-        this->queueFilter.
-        if(!this->queueFilter) {
+        if(!this->queueFilter->filter(newNode)) {
             bool success = this->pushNode(newNode);
             if(success) {
                 return true;
