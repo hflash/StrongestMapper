@@ -47,20 +47,7 @@ public:
     //push a node into the priority queue
     //return false iff this fails for any reason
     //pre-condition: newNode.cost has already been set
-    bool push(SearchNode* newNode) {
-        numPushed++;
-        if(!newNode->env->filter(newNode)) {
-            bool success = this->pushNode(newNode);
-            if(success) {
-                return true;
-            } else {
-                std::cerr << "WARNING: pushNode(Node*) failed somehow.\n";
-                return false;
-            }
-        }
-        numFiltered++;
-        return false;
-    }
+    bool push() = 0;
 
     inline Node * getBestFinalNode() {
         return bestFinalNode;

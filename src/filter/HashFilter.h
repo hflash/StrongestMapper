@@ -59,6 +59,12 @@ private:
     std::unordered_map<std::size_t, vector<SearchNode *>> hashmap;
 
 public:
+    HashFilter * createEmptyCopy() {
+        HashFilter * f = new HashFilter();
+        f->numFiltered = this->numFiltered;
+        f->numMarkedDead = this->numMarkedDead;
+        return f;
+    }
     /* for hash filter
      * Consider first the value of the simple hash result, and second the hash conflict,
      * including the following methods:
@@ -70,6 +76,9 @@ public:
         int numQubits = node->environment->getQubitNum();
         std::size_t hashResult = hashFunc(newNode);
         for (SearchNode *candidate: this->hashmap[hashResult]) {
+            if(candidate->dead){
+                continue;
+            }
             bool toBeFiltered = true;
             for (int x = 0; x < numQubits; x++) {
                 if (candidate->l2pMapping[x] != newNode->l2pMapping[x]) {
@@ -120,6 +129,9 @@ public:
                     mapAndGate = false;
                 }
             }
+            // The time stamp of new node: every qubit in candidate seems
+            //      worse or the same, needs to wait for more cycles to idle
+            // the time stamp of new node: cycles the same or every qubit worse
             if(toBeFiltered && (newNode->timeStamp == candidate->timeStamp || !mapAndGate)){
                 numFiltered++;
                 return true;
