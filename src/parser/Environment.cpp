@@ -105,6 +105,7 @@ vector<vector<int>> Environment::MakeCouplingGraph(vector<vector<int>> coupling)
 }
 
 Environment::Environment(string name, vector<vector<int>> coupling) {
+    this->coupling=coupling;
     string filename = name;
     cout << filename << endl;
     QASMparser qasm_parser(filename);

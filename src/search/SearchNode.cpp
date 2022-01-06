@@ -46,8 +46,8 @@ void SearchNode::GetReadyGate() {
         int gateid=frontLayerGate[i];
         GateNode nowGate = this->environment->gateInfo.find(gateid)->second;
         //single qubit gate
-        int ii=this->l2pMapping[nowGate.targetQubit];
-        int jj=this->l2pMapping[nowGate.controlQubit];
+        int ii=this->p2lMapping[nowGate.targetQubit];
+        int jj=this->p2lMapping[nowGate.controlQubit];
         if (nowGate.controlQubit == -1) {
             if(this->logicalQubitState[nowGate.targetQubit] == 0){
                 this->readyGate.push_back(gateid);
@@ -59,9 +59,33 @@ void SearchNode::GetReadyGate() {
             this->readyGate.push_back(gateid);
         }
         else{
-
         }
     }
+}
+
+vector<int> SearchNode::GetReadyGate(vector<vector<int>> dTable, vector<int> qubitState) {
+    vector<int> frontLayerGate = this->environment->getFrontLayer(dTable);
+    vector<int> readyGates;
+    for (int i = 0; i < frontLayerGate.size(); i++) {
+        int gateid=frontLayerGate[i];
+        GateNode nowGate = this->environment->gateInfo.find(gateid)->second;
+        //single qubit gate
+        int ii=this->p2lMapping[nowGate.targetQubit];
+        int jj=this->p2lMapping[nowGate.controlQubit];
+        if (nowGate.controlQubit == -1) {
+            if(qubitState[nowGate.targetQubit] == 0){
+                readyGates.push_back(gateid);
+            }
+        }
+            //two qubits gate
+        else if (qubitState[nowGate.targetQubit] == 0 && qubitState[nowGate.controlQubit] == 0 &&
+                 this->environment->couplingGraph[ii][jj] == 1) {
+            readyGates.push_back(gateid);
+        }
+        else{
+        }
+    }
+    return readyGates;
 }
 
 void SearchNode::gate2Critiality() {

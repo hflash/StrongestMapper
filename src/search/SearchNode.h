@@ -56,7 +56,8 @@ public:
     //action path
     vector<vector<ScheduledGate>> actionPath;
     SearchNode(vector<int> initMapping,vector<int>nowMapping,vector<int>qubitState,vector<vector<int>> dagTable,Environment *env,int nowtime,vector<vector<ScheduledGate>> path);
-
+    vector<int> GetReadyGate(vector<vector<int>> dTable, vector<int> qubitState
+    );
 };
 
 

@@ -22,6 +22,7 @@ private:
 public:
     vector<vector<int>> generateDag(vector<int> gateIDs);
     vector<vector<int>> couplingGraph;
+    vector<vector<int>> coupling;
     vector<vector<int>> MakeCouplingGraph(vector<vector<int>> couplingList);
     map<int,GateNode> gateInfo;
     int getQubitNum();
