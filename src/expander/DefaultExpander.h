@@ -18,7 +18,8 @@ private:
     Environment* env;
 public:
     DefaultExpander(Environment* env);
-    bool expand(Queue * nodes,SearchNode* node);
+    bool expand( DefaultQueue* nodes,SearchNode* node);
+    bool IsCycle(vector<ActionPath> actionPath,int qubitNum);
 };
 
 

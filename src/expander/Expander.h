@@ -6,6 +6,7 @@
 #define STRONGESTMAPPER_EXPANDER_H
 
 #include "../queue/Queue.h"
+#include "../queue/DefaultQueue.h"
 #include "../search/SearchNode.h"
 #include "../filter/Filter.h"
 #include "../filter/HashFilter.h"
@@ -15,7 +16,7 @@ class Expander {
 public:
     //best node answer
     bool findBestNode;
-    vector<vector<ScheduledGate>> actionPath;
+    vector<ActionPath> actionPath;
     vector<int> initialMapping;
 
     virtual ~Expander() {};

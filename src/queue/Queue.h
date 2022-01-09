@@ -47,7 +47,7 @@ public:
     //push a node into the priority queue
     //return false iff this fails for any reason
     //pre-condition: newNode.cost has already been set
-    bool push() = 0;
+    bool push(SearchNode* newNode) = 0;
 
     inline Node * getBestFinalNode() {
         return bestFinalNode;
