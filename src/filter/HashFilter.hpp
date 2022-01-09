@@ -2,8 +2,8 @@
 // Created by wonder on 2021/12/28.
 //
 
-#ifndef STRONGESTMAPPER_HASHFILTER_H
-#define STRONGESTMAPPER_HASHFILTER_H
+#ifndef STRONGESTMAPPER_HASHFILTER_HPP
+#define STRONGESTMAPPER_HASHFILTER_HPP
 
 #include "Filter.h"
 #include "../search/SearchNode.h"
@@ -29,7 +29,7 @@ inline void hash_combine(std::size_t &seed, const T &v) {
  * Here we combine 3 items of nodes:
  * 1. l2pMapping: qubit mapping, array of qubits(int)
  * 2. logicalQubitState: busy cycles of each qubit, int array
- * 3. remainGate: set of
+ * 3. remainGate: set of remaining gates in original circuits
  * */
 inline std::size_t hashFunc(SearchNode *node) {
 
@@ -69,7 +69,7 @@ public:
         f->numMarkedDead = this->numMarkedDead;
         return f;
     }
-    /* for hash filter
+    /* For hash filter
      * Consider first the value of the simple hash result, and second the hash conflict,
      * including the following methods:
         * 1. one-to-one comparison of mapping
@@ -92,7 +92,6 @@ public:
             }
             if (newNode->remainGate.size() != candidate->remainGate.size()) {
                 toBeFiltered = false;
-                break;
             } else if (toBeFiltered) {
                 for (int g = 0; g < newNode->remainGate.size(); g++) {
                     if (newNode->remainGate[g] != candidate->remainGate[g]) {
@@ -144,6 +143,7 @@ public:
         this->hashmap[hashResult].push_back(newNode);
         return false;
     }
+
 };
 
-#endif //STRONGESTMAPPER_HASHFILTER_H
+#endif //STRONGESTMAPPER_HASHFILTER_HPP
