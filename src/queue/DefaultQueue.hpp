@@ -23,7 +23,7 @@ private:
     };
     HashFilter* queueFilter = new HashFilter();
     std::priority_queue<SearchNode*, std::vector<SearchNode*>, CmpDefaultQueue> nodes;
-    bool pushNode(Node * newNode) {
+    bool pushNode(SearchNode * newNode) {
         nodes.push(newNode);
         return true;
     }

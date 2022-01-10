@@ -6,7 +6,7 @@
 #define STRONGESTMAPPER_EXPANDER_H
 
 #include "../queue/Queue.h"
-#include "../queue/DefaultQueue.h"
+#include "../queue/DefaultQueue.hpp"
 #include "../search/SearchNode.h"
 #include "../filter/Filter.h"
 #include "../filter/HashFilter.hpp"
