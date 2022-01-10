@@ -20,8 +20,10 @@ bool DefaultExpander::IsMoreCnot(SearchNode* node) {
 }
 
 bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
+    int countNum=0;
     //dead or not
     if(node->dead==true){
+        this->expandeNum=this->expandeNum+countNum;
         return false;
     }
     if(this->IsMoreCnot(node)){
@@ -55,9 +57,11 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
             thisTimeAction.actions=thisTimeSchduledGate;
             thisTimeAction.pattern=false;
             scheduledGates.push_back(thisTimeAction);
+            countNum++;
         }
         this->findBestNode=true;
         this->actionPath=scheduledGates;
+        this->expandeNum=this->expandeNum+countNum;
         return true;
     }
     else{
@@ -139,11 +143,15 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                 thisActionAfterReady.actions=thisActionPathAfterReady;
                 thisActionAfterReady.pattern=IsPattern;
                 newActionPath.push_back(thisActionAfterReady);
-
-                SearchNode* sn=new SearchNode(node->initialMapping,newLogicalMapping,newQubitStateAfterReady,newdTable,node->environment,node->timeStamp+1,newActionPath);
-                nodes->push(sn);
+                if(IsCycle(newActionPath,node->environment->getQubitNum())){
+                    SearchNode* sn=new SearchNode(node->initialMapping,newLogicalMapping,newQubitStateAfterReady,newdTable,node->environment,node->timeStamp+1,newActionPath);
+                    nodes->push(sn);
+                }
+                countNum++;
             }
         }
+        this->expandeNum=this->expandeNum+countNum;
+        return true;
     }
 
 }

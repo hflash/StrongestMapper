@@ -10,18 +10,18 @@
 #include "DefaultExpander.h"
 #include "../queue/DefaultQueue.hpp"
 
-//search k layer circuits, find the best first layer
-//return search node num
-
 class Search {
 public:
     int searchNum;
     int patternNum;
+    int queueNum;
     vector<int> initialMapping;
-    DefaultQueue NodesQueue;
     Environment* env;
-
-    ActionPath SearchKLayer(SearchNode* sn,vector<vector<int>>dagT);
+    Search(Environment* env);
+    //search k layer circuits, find the best first layer
+    vector<ActionPath> SearchKLayer(vector<int>initialMapping,vector<int>qubitState,vector<vector<int>>dagT);
+    void SearchPath(int k);
+    vector<vector<int>> GoodInitialMapping();
 
 };
 
