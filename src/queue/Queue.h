@@ -15,7 +15,7 @@ private:
     //return false iff this fails for any reason
     //pre-condition: our filters have already said this node is good
     //pre-condition: newNode.cost has already been set
-    virtual bool pushNode(Node * newNode) = 0;
+    virtual bool pushNode(SearchNode * newNode) = 0;
 
 protected:
     SearchNode * bestFinalNode = 0;
@@ -47,9 +47,9 @@ public:
     //push a node into the priority queue
     //return false iff this fails for any reason
     //pre-condition: newNode.cost has already been set
-    bool push() = 0;
+    virtual bool push(SearchNode *node) = 0;
 
-    inline Node * getBestFinalNode() {
+    inline SearchNode * getBestFinalNode() {
         return bestFinalNode;
     }
 };
