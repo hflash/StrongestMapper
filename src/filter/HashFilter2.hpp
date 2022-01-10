@@ -49,15 +49,56 @@ inline std::size_t hashFunc2(SearchNode *node) {
     return hashResult;
 }
 
-class HashFilter2 : public Filter{
+class HashFilter2 : public Filter {
 private:
     int numFiltered = 0;
     int numMarkedDead = 0;
     std::unordered_map<std::size_t, vector<SearchNode *>> hashmap;
 
 public:
-    bool filter(SearchNode *newNode){
+    /*
+     * this filter is designed to assess whether a new node should be push into queue
+     * firstly, make sure the result of hashing is conflict or not
+     * secondly, whatever conflict, either of the new node or candidate of nodes in queue with the same hash result should be filtered or marked dead
+     * * judge conflict:
+     * consider if mapping and remain gates are the same
+     * * if not hash conflict, judge to filter or not:
+     * make sure which node is strictly better by the items followed:
+     * 1. cycles + max(busy time)
+     * * if hash conflict, continue
+     * */
+    bool filter(SearchNode *newNode) {
         int numQubits = newNode->environment->getQubitNum();
+        std::size_t hashResult = hashFunc2(newNode);
+        for (SearchNode *candidate: this->hashmap[hashResult]) {
+            if (candidate->dead) {
+                continue;
+            }
+            bool toBeFiltered = true;
+            bool goMarkDead = false;
+            bool hashConflict = false;
+            for (int x = 0; x < numQubits; x++) {
+                if (candidate->l2pMapping[x] != newNode->l2pMapping[x]) {
+                    toBeFiltered = false;
+                    break;
+                }
+            }
+            if (toBeFiltered && candidate->remainGate.size() == newNode->remainGate.size()) {
+                for (int g = 0; g < newNode->remainGate.size(); g++) {
+                    if (newNode->remainGate[g] != candidate->remainGate[g]) {
+                        toBeFiltered = false;
+                        hashConflict = true;
+                        break;
+                    }
+                }
+            }
+            if(hashConflict){
+                continue;
+            }
+
+
+
+        }
     }
 };
 
