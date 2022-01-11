@@ -55,6 +55,7 @@ private:
     int numMarkedDead = 0;
     std::unordered_map<std::size_t, vector<SearchNode *>> hashmap;
 
+
 public:
     /*
      * this filter is designed to assess whether a new node should be push into queue
@@ -75,30 +76,50 @@ public:
                 continue;
             }
             bool toBeFiltered = true;
-            bool goMarkDead = false;
             bool hashConflict = false;
+            bool markCanDead = true;
             for (int x = 0; x < numQubits; x++) {
                 if (candidate->l2pMapping[x] != newNode->l2pMapping[x]) {
                     toBeFiltered = false;
+                    hashConflict = true;
                     break;
                 }
             }
             if (toBeFiltered && candidate->remainGate.size() == newNode->remainGate.size()) {
                 for (int g = 0; g < newNode->remainGate.size(); g++) {
                     if (newNode->remainGate[g] != candidate->remainGate[g]) {
-                        toBeFiltered = false;
                         hashConflict = true;
                         break;
                     }
                 }
             }
-            if(hashConflict){
+            if (hashConflict) {
                 continue;
             }
-
-
-
+            // compare timeStamp + busytime
+            for (int x = 0; x < numQubits; x++) {
+                int newBusyTime = newNode->logicalQubitState[x];
+                int canBusyTime = candidate->logicalQubitState[x];
+                int newTimeStamp = newBusyTime + newNode->timeStamp;
+                int canTimeStamp = canBusyTime + candidate->timeStamp;
+                if (newTimeStamp < canTimeStamp) {
+                    //new node qubit x get the same state earlier
+                    if(markCanDead)
+                        markCanDead = true;
+                    toBeFiltered = false;
+                } else if (newTimeStamp > canTimeStamp) {
+                    markCanDead = false;
+                }
+            }
+            if(markCanDead && !toBeFiltered)
+            {
+                candidate->dead = true;
+            }else if (toBeFiltered) {
+                return true;
+            }
         }
+        this->hashmap[hashResult].push_back(newNode);
+        return false;
     }
 };
 
