@@ -13,34 +13,31 @@
 
 using namespace std;
 
-struct ScheduledGate {
+struct ScheduledGate{
     string gateName;
     int targetQubit;
     int controlQubit;
 };
 
+struct ActionPath{
+    vector<ScheduledGate> actions;
+    bool pattern;
+};
+
 class SearchNode {
 private:
-    map<int, int> gateCriticality;
-
+    map<int,int> gateCriticality;
     void GetReadyGate();
-
     void computeCost1();
-
     void computeCost2();
-
     void gate2Critiality();
-
     void findRemainGates();
-
     int findFreeTimePhysical(int physicalQubit);
-
     int busyTime();
-
     vector<int> findFrontTwoQubitsGates();
 
 public:
-    Environment *environment;
+    Environment * environment;
     bool dead;
     int timeStamp;
     int qubitNum;
@@ -62,11 +59,8 @@ public:
     //unscheduled gate
     vector<int> remainGate;
     //action path
-    vector<vector<ScheduledGate>> actionPath;
-
-    SearchNode(vector<int> initMapping, vector<int> nowMapping, vector<int> qubitState, vector<vector<int>> dagTable,
-               Environment *env, int nowtime, vector<vector<ScheduledGate>> path);
-
+    vector<ActionPath> actionPath;
+    SearchNode(vector<int> initMapping,vector<int>nowMapping,vector<int>qubitState,vector<vector<int>> dagTable,Environment *env,int nowtime,vector<ActionPath> path);
     vector<int> GetReadyGate(vector<vector<int>> dTable, vector<int> qubitState
     );
 };

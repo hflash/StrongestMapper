@@ -19,16 +19,18 @@ bool DefaultExpander::IsMoreCnot(SearchNode* node) {
     return moreCx;
 }
 
-bool DefaultExpander::expand(Queue *nodes,SearchNode* node) {
+bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
+    int countNum=0;
     //dead or not
     if(node->dead==true){
+        this->expandeNum=this->expandeNum+countNum;
         return false;
     }
     if(this->IsMoreCnot(node)){
         // no need for swap
         vector<int> remainGates=node->remainGate;
         vector<int> readGates=node->readyGate;
-        vector<vector<ScheduledGate>> scheduledGates=node->actionPath;
+        vector<ActionPath> scheduledGates=node->actionPath;
         while(readGates.size()>0){
             vector<ScheduledGate> thisTimeSchduledGate;
             // add new schduled gate and generate new remaingates
@@ -51,16 +53,22 @@ bool DefaultExpander::expand(Queue *nodes,SearchNode* node) {
             }
             //new ready gates
             readGates=node->GetReadyGate(newDtable,newQubitState);
-            scheduledGates.push_back(thisTimeSchduledGate);
+            ActionPath thisTimeAction;
+            thisTimeAction.actions=thisTimeSchduledGate;
+            thisTimeAction.pattern=false;
+            scheduledGates.push_back(thisTimeAction);
+            countNum++;
         }
         this->findBestNode=true;
         this->actionPath=scheduledGates;
+        this->expandeNum=this->expandeNum+countNum;
         return true;
     }
     else{
         vector<int> readyGates=node->readyGate;
         vector<vector<int>> readyGateCom=this->ComReadyGates(readyGates);
         for(int i=0;i<readyGateCom.size();i++){
+            //one of the ready gates combination
             vector<int> nowGates=readyGateCom[i];
             vector<int> remainGates=node->remainGate;
             vector<int> newQubitState=node->logicalQubitState;
@@ -108,6 +116,7 @@ bool DefaultExpander::expand(Queue *nodes,SearchNode* node) {
                     possibleSwapCom.push_back(temp1);
                 }
             }
+            bool IsPattern=false;
             for(int k=0;k<possibleSwapCom.size();k++){
                 vector<vector<int>> temp=possibleSwapCom[k];
                 vector<int> newQubitStateAfterReady=newQubitState;
@@ -127,16 +136,75 @@ bool DefaultExpander::expand(Queue *nodes,SearchNode* node) {
                     Sg.controlQubit=physicalQubit2;
                     Sg.gateName="swap";
                     thisActionPathAfterReady.push_back(Sg);
+                    IsPattern=true;
                 }
-                vector<vector<ScheduledGate>> newActionPath=node->actionPath;
-                newActionPath.push_back(thisActionPathAfterReady);
-
-                SearchNode* sn=new SearchNode(node->initialMapping,newLogicalMapping,newQubitStateAfterReady,newdTable,node->environment,node->timeStamp+1,newActionPath);
-                nodes->push(sn);
+                vector<ActionPath> newActionPath=node->actionPath;
+                ActionPath thisActionAfterReady;
+                thisActionAfterReady.actions=thisActionPathAfterReady;
+                thisActionAfterReady.pattern=IsPattern;
+                newActionPath.push_back(thisActionAfterReady);
+                if(IsCycle(newActionPath,node->environment->getQubitNum())){
+                    SearchNode* sn=new SearchNode(node->initialMapping,newLogicalMapping,newQubitStateAfterReady,newdTable,node->environment,node->timeStamp+1,newActionPath);
+                    nodes->push(sn);
+                }
+                countNum++;
             }
         }
+        this->expandeNum=this->expandeNum+countNum;
+        return true;
     }
 
+}
+
+bool DefaultExpander::IsCycle(vector<ActionPath> actionPath,int qubitNum) {
+    int actionLongth=actionPath.size();
+    bool isCycle=false;
+    if(actionLongth==0){
+        return isCycle;
+    }
+    ActionPath lastAction=actionPath[actionLongth-1];
+    vector<int> qubitSwap(qubitNum,-1);
+    for(int i=0;i<lastAction.actions.size();i++){
+        if(lastAction.actions[i].gateName=="swap") {
+            isCycle = true;
+            qubitSwap[lastAction.actions[i].controlQubit]=lastAction.actions[i].targetQubit;
+            qubitSwap[lastAction.actions[i].targetQubit]=lastAction.actions[i].controlQubit;
+        }
+    }
+    if (isCycle==false){
+        return isCycle;
+    }
+    else{
+        for(int i=actionLongth-1;i>=0;i--){
+            for(int j=0;j<actionPath[i].actions.size();j++){
+                int a=actionPath[i].actions[j].controlQubit;
+                int b=actionPath[i].actions[j].targetQubit;
+                if(qubitSwap[a]==b){
+                    return true;
+                }
+                else{
+                    if(qubitSwap[a]!=-1){
+                        qubitSwap[qubitSwap[a]]=-1;
+                        qubitSwap[a]=-1;
+                    }
+                    if(qubitSwap[b]!=-1){
+                        qubitSwap[qubitSwap[b]]=-1;
+                        qubitSwap[b]=-1;
+                    }
+                }
+            }
+            bool flag=true;
+            for(int a=0;a<qubitNum;a++){
+                if(qubitSwap[a]!=-1){
+                    flag=false;
+                }
+            }
+            if(flag==true){
+                return false;
+            }
+        }
+        return false;
+    }
 }
 
 vector<vector<int>> DefaultExpander::ComReadyGates(vector<int> readyGates) {
