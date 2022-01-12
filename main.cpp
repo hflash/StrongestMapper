@@ -2,30 +2,20 @@
 #include <map>
 #include "src/parser/QASMparser.h"
 #include "src/parser/Environment.h"
+#include "src/search/SearchNode.h"
+#include "src/expander/DefaultExpander.h"
+#include "src/expander/Search.h"
 using namespace std;
 
 int main() {
-    string fname="../circuits/mod5mils_65.qasm";
+    string fname="D:\\study\\SearchCompiler\\circuits\\mod5mils_65.qasm";
     vector<vector<int>> coupling;
-    Environment env = Environment(fname,coupling);
-    //test of find parents and children of a gate by ID
-    for(int i = 0; i < env.getParentsByID(27).size();i++)
-        cout<<env.getParentsByID(27)[i]<<endl;
-    for(int i = 0; i < env.getParentsByID(27).size();i++)
-        cout<<env.getChildrenByID(27)[i]<<endl;
-    vector<int> exeGateIDs;
-    vector<vector<int>> kdag = env.getNewKLayerDag(exeGateIDs, 10);
-    vector<int> front = env.getFrontLayer(kdag);
-
-    //test of dag table and ID value  giving
-//    map<int, GateNode> gateInfo = env.GetGateInfo();
-//    map<int, GateNode>::iterator it;
-
-//    for(it = gateInfo.begin();it != gateInfo.end();it++)
-//    {
-//        cout<<it->first;
-//        cout<<it->second.Name;
-//        cout<<it->second.criticality<<endl;
-//    }
+    coupling={{0,2},{1,2},{2,3},{2,4}};
+    Environment* env = new Environment(fname,coupling);
+    Search* searchBestAction= new Search(env);
+    int k=5;
+    string type="swap search";
+    vector<SearchResult*> srs;
+    srs=searchBestAction->SearchPath(k,type);
     return 0;
 }

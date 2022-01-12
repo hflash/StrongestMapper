@@ -61,14 +61,18 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
             countNum++;
         }
         this->findBestNode=true;
-        this->actionPath=scheduledGates;
         this->expandeNum=this->expandeNum+countNum;
         return true;
     }
     else{
         vector<int> readyGates=node->readyGate;
+        int readyGateNum=readyGates.size();
         vector<vector<int>> readyGateCom=this->ComReadyGates(readyGates);
         for(int i=0;i<readyGateCom.size();i++){
+            bool IsPattern=true;
+            if(readyGateCom[i].size()==readyGateNum){
+                IsPattern=false;
+            }
             //one of the ready gates combination
             vector<int> nowGates=readyGateCom[i];
             vector<int> remainGates=node->remainGate;
@@ -111,14 +115,20 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
             possibleSwapCom.push_back(temp);
             for(int k=0;k<possibleSwap.size();k++) {
                 int nowSwapSize = possibleSwapCom.size();
-                for(int a=0;a<nowSwapSize;a++){
-                    vector<vector<int>> temp1;
-                    temp1=possibleSwapCom[a];
-                    temp1.push_back(possibleSwap[k]);
-                    possibleSwapCom.push_back(temp1);
+                for (int a = 0; a < nowSwapSize; a++) {
+                    set<int> usedQubits;
+                    for(int b=0;b<possibleSwapCom[a].size();b++){
+                        usedQubits.insert(possibleSwapCom[a][b][0]);
+                        usedQubits.insert(possibleSwapCom[a][b][1]);
+                    }
+                    if(usedQubits.count(possibleSwap[k][0])==0&&usedQubits.count(possibleSwap[k][1])==0){
+                        vector<vector<int>> temp1;
+                        temp1 = possibleSwapCom[a];
+                        temp1.push_back(possibleSwap[k]);
+                        possibleSwapCom.push_back(temp1);
+                    }
                 }
             }
-            bool IsPattern=false;
             for(int k=0;k<possibleSwapCom.size();k++){
                 vector<vector<int>> temp=possibleSwapCom[k];
                 vector<int> newQubitStateAfterReady=newQubitState;
@@ -129,8 +139,8 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                     int physicalQubit2=temp[a][1];
                     int logicalQubit1=l2pMapping[physicalQubit1];
                     int logicalQubit2=l2pMapping[physicalQubit2];
-                    newQubitStateAfterReady[logicalQubit1]=3;
-                    newQubitStateAfterReady[logicalQubit2]=3;
+                    newQubitStateAfterReady[logicalQubit1]=2;
+                    newQubitStateAfterReady[logicalQubit2]=2;
                     newLogicalMapping[physicalQubit1]=logicalQubit2;
                     newLogicalMapping[physicalQubit2]=logicalQubit1;
                     ScheduledGate Sg;
@@ -139,7 +149,6 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                     Sg.gateName="swap";
                     Sg.gateID=-1;
                     thisActionPathAfterReady.push_back(Sg);
-                    IsPattern=true;
                 }
                 vector<ActionPath> newActionPath=node->actionPath;
                 ActionPath thisActionAfterReady;

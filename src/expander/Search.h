@@ -9,6 +9,9 @@
 #include "../parser/Environment.h"
 #include "DefaultExpander.h"
 #include "../queue/DefaultQueue.hpp"
+#include <string>
+
+using namespace std;
 
 struct SearchResult{
     vector<ActionPath> finalPath;
@@ -17,23 +20,20 @@ struct SearchResult{
     vector<int> searchNodeNum;
     vector<int> queueNum;
     int patternNum;
+    int swapNum;
 };
 
 class Search {
 public:
-    int searchNum;
-    int patternNum;
-    int queueNum;
-    vector<ActionPath> finalActions;
-    vector<int> initialMapping;
     Environment* env;
     Search(Environment* env);
-    void SearchPath(int k);
-    vector<vector<int>> GoodInitialMapping();
+    vector<SearchResult*> SearchPath(int k,string type);
+    vector<vector<int>> GoodInitialMapping(string type);
     //search k layer circuits, find the best first layer
     SearchResult SearchKLayer(SearchNode* sn,vector<vector<int>>dagT);
     //search all layer circuits with initial mapping
     SearchResult SearchKLayersWithInitialMapping(vector<int> initialMapping,int k);
+    vector<vector<int>> SwapSearch(int k);
 
 };
 
