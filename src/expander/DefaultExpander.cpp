@@ -39,6 +39,7 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                 Sg.gateName=this->env->gateInfo.find(readGates[i])->second.Name;
                 Sg.controlQubit=-1;
                 Sg.targetQubit=node->p2lMapping[this->env->gateInfo.find(readGates[i])->second.targetQubit];
+                Sg.gateID=readGates[i];
                 thisTimeSchduledGate.push_back(Sg);
                 auto iter = remove(remainGates.begin(),remainGates.end(),readGates[i]);
             }
@@ -87,6 +88,7 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                 Sg.targetQubit=node->p2lMapping[this->env->gateInfo.find(nodeID)->second.targetQubit];
                 Sg.controlQubit=node->p2lMapping[this->env->gateInfo.find(nodeID)->second.controlQubit];
                 Sg.gateName=this->env->gateInfo.find(nodeID)->second.Name;
+                Sg.gateID=nodeID;
                 thisActionPath.push_back(Sg);
                 auto iter = remove(remainGates.begin(),remainGates.end(),nodeID);
             }
@@ -135,6 +137,7 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                     Sg.targetQubit=physicalQubit1;
                     Sg.controlQubit=physicalQubit2;
                     Sg.gateName="swap";
+                    Sg.gateID=-1;
                     thisActionPathAfterReady.push_back(Sg);
                     IsPattern=true;
                 }
@@ -144,7 +147,7 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                 thisActionAfterReady.pattern=IsPattern;
                 newActionPath.push_back(thisActionAfterReady);
                 if(IsCycle(newActionPath,node->environment->getQubitNum())){
-                    SearchNode* sn=new SearchNode(node->initialMapping,newLogicalMapping,newQubitStateAfterReady,newdTable,node->environment,node->timeStamp+1,newActionPath);
+                    SearchNode* sn=new SearchNode(newLogicalMapping,newQubitStateAfterReady,newdTable,node->environment,node->timeStamp+1,newActionPath);
                     nodes->push(sn);
                 }
                 countNum++;

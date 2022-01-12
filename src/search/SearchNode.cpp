@@ -4,10 +4,9 @@
 
 #include "SearchNode.h"
 
-SearchNode::SearchNode(vector<int> initMapping, vector<int> nowMapping,vector<int>qubitState, vector<vector<int>> dTable, Environment *env,int nowtime,vector<vector<ScheduledGate>> path){
+SearchNode::SearchNode(vector<int> nowMapping,vector<int>qubitState, vector<vector<int>> dTable, Environment *env,int nowtime,vector<ActionPath> path){
     this->l2pMapping = nowMapping;
     this->dead=false;
-    this->initialMapping = initMapping;
     this->qubitNum = nowMapping.size();
     this->p2lMapping.resize(this->qubitNum);
     this->dagTable = dTable;

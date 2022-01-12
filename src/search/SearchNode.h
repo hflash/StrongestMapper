@@ -17,6 +17,7 @@ struct ScheduledGate{
     string gateName;
     int targetQubit;
     int controlQubit;
+    int gateID;
 };
 
 struct ActionPath{
@@ -60,7 +61,7 @@ public:
     vector<int> remainGate;
     //action path
     vector<ActionPath> actionPath;
-    SearchNode(vector<int> initMapping,vector<int>nowMapping,vector<int>qubitState,vector<vector<int>> dagTable,Environment *env,int nowtime,vector<ActionPath> path);
+    SearchNode(vector<int>nowMapping,vector<int>qubitState,vector<vector<int>> dagTable,Environment *env,int nowtime,vector<ActionPath> path);
     vector<int> GetReadyGate(vector<vector<int>> dTable, vector<int> qubitState
     );
 };
