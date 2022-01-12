@@ -24,7 +24,7 @@ public:
         //if this filter retains node info, delete the filter's records of node n
     }
 
-    virtual Filter * createEmptyCopy() = 0;
+//    virtual Filter * createEmptyCopy() = 0;
 
     virtual int setArgs(char** argv) {
         //used to set the queue's parameters via command-line
