@@ -19,9 +19,10 @@ private:
 
 protected:
     SearchNode * bestFinalNode = 0;
-    int numPushed=0,numFiltered=0,numPopped=0;
+
 
 public:
+    int numPushed=0,numFiltered=0,numPopped=0;
     virtual ~Queue() {};
 
     virtual int setArgs(char** argv) {
