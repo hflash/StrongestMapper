@@ -14,6 +14,7 @@ bool DefaultExpander::IsMoreCnot(SearchNode* node) {
         int gateid=node->remainGate[i];
         if(this->env->gateInfo.find(gateid)->second.controlQubit==-1){
             moreCx=true;
+            return moreCx;
         }
     }
     return moreCx;
@@ -21,12 +22,14 @@ bool DefaultExpander::IsMoreCnot(SearchNode* node) {
 
 bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
     int countNum=0;
+    cout<<"father node is :\n";
+    node->PrintNode();
     //dead or not
     if(node->dead==true){
         this->expandeNum=this->expandeNum+countNum;
         return false;
     }
-    if(this->IsMoreCnot(node)){
+    if(this->IsMoreCnot(node)==false){
         // no need for swap
         vector<int> remainGates=node->remainGate;
         vector<int> readGates=node->readyGate;
@@ -73,6 +76,11 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
             if(readyGateCom[i].size()==readyGateNum){
                 IsPattern=false;
             }
+            cout<<"this time the ready gates are : ";
+            for(int ii=0;ii<readyGateCom[i].size();ii++){
+                cout<<readyGateCom[i][ii]<<" ";
+            }
+            cout<<endl;
             //one of the ready gates combination
             vector<int> nowGates=readyGateCom[i];
             vector<int> remainGates=node->remainGate;
@@ -130,17 +138,25 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                 }
             }
             for(int k=0;k<possibleSwapCom.size();k++){
+                cout<<"this time the sawp are : ";
+                for(int jj=0;jj<possibleSwapCom[k].size();jj++){
+                    cout<<"["<<possibleSwapCom[k][jj][0]<<" "<<possibleSwapCom[k][jj][1]<<"] ";
+                }
+                cout<<endl;
                 vector<vector<int>> temp=possibleSwapCom[k];
                 vector<int> newQubitStateAfterReady=newQubitState;
                 vector<int> newLogicalMapping=node->l2pMapping;
                 vector<ScheduledGate> thisActionPathAfterReady=thisActionPath;
+                cout<<"after ready gate this time action size is "<<thisActionPathAfterReady.size()<<endl;
+                cout<<"temp size is "<<temp.size()<<endl;
                 for(int a=0;a<temp.size();a++){
+                    cout<<"there is one swap\n";
                     int physicalQubit1=temp[a][0];
                     int physicalQubit2=temp[a][1];
                     int logicalQubit1=l2pMapping[physicalQubit1];
                     int logicalQubit2=l2pMapping[physicalQubit2];
-                    newQubitStateAfterReady[logicalQubit1]=2;
-                    newQubitStateAfterReady[logicalQubit2]=2;
+                    newQubitStateAfterReady[logicalQubit1]=3;
+                    newQubitStateAfterReady[logicalQubit2]=3;
                     newLogicalMapping[physicalQubit1]=logicalQubit2;
                     newLogicalMapping[physicalQubit2]=logicalQubit1;
                     ScheduledGate Sg;
@@ -149,14 +165,25 @@ bool DefaultExpander::expand(DefaultQueue *nodes,SearchNode* node) {
                     Sg.gateName="swap";
                     Sg.gateID=-1;
                     thisActionPathAfterReady.push_back(Sg);
+                    cout<<"after add one swap this time action size is "<<thisActionPathAfterReady.size()<<endl;
+                }
+                for(int b=0;b<newQubitStateAfterReady.size();b++){
+                    if(newQubitStateAfterReady[b]!=0){
+                        newQubitStateAfterReady[b]--;
+                    }
                 }
                 vector<ActionPath> newActionPath=node->actionPath;
                 ActionPath thisActionAfterReady;
                 thisActionAfterReady.actions=thisActionPathAfterReady;
                 thisActionAfterReady.pattern=IsPattern;
                 newActionPath.push_back(thisActionAfterReady);
-                if(IsCycle(newActionPath,node->environment->getQubitNum())){
+                cout<<"newActionPath size is "<<newActionPath.size()<<endl;
+                cout<<"this time action size in newActionPath is "<<newActionPath[newActionPath.size()-1].actions.size()<<endl;
+                cout<<"this time action size is "<<thisActionPathAfterReady.size()<<endl;
+                if(IsCycle(newActionPath,node->environment->getQubitNum())==false){
                     SearchNode* sn=new SearchNode(newLogicalMapping,newQubitStateAfterReady,newdTable,node->environment,node->timeStamp+1,newActionPath);
+                    cout<<"new generate node: --------------------------------------- \n";
+                    sn->PrintNode();
                     nodes->push(sn);
                 }
                 countNum++;
@@ -176,6 +203,7 @@ bool DefaultExpander::IsCycle(vector<ActionPath> actionPath,int qubitNum) {
     }
     ActionPath lastAction=actionPath[actionLongth-1];
     vector<int> qubitSwap(qubitNum,-1);
+    int lastLongth=lastAction.actions.size();
     for(int i=0;i<lastAction.actions.size();i++){
         if(lastAction.actions[i].gateName=="swap") {
             isCycle = true;
@@ -183,6 +211,11 @@ bool DefaultExpander::IsCycle(vector<ActionPath> actionPath,int qubitNum) {
             qubitSwap[lastAction.actions[i].targetQubit]=lastAction.actions[i].controlQubit;
         }
     }
+    cout<<"swap in the last time: ";
+    for(int i=0;i<qubitNum;i++){
+        cout<<qubitSwap[i]<<" ";
+    }
+    cout<<endl;
     if (isCycle==false){
         return isCycle;
     }

@@ -34,6 +34,7 @@ private:
     void gate2Critiality();
     void findRemainGates();
     int findFreeTimePhysical(int physicalQubit);
+    int findFreeTimePhysical(int physicalQubit,int gateID);
     int busyTime();
     vector<int> findFrontTwoQubitsGates();
 
@@ -62,8 +63,8 @@ public:
     //action path
     vector<ActionPath> actionPath;
     SearchNode(vector<int>nowMapping,vector<int>qubitState,vector<vector<int>> dagTable,Environment *env,int nowtime,vector<ActionPath> path);
-    vector<int> GetReadyGate(vector<vector<int>> dTable, vector<int> qubitState
-    );
+    vector<int> GetReadyGate(vector<vector<int>> dTable, vector<int> qubitState);
+    void PrintNode();
 };
 
 

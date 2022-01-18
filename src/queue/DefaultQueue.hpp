@@ -18,7 +18,7 @@ private:
     {
         bool operator()(const SearchNode* lhs, const SearchNode* rhs) const
         {
-            return lhs->cost1 < rhs->cost1;
+            return lhs->cost1 > rhs->cost1;
         }
     };
     HashFilter* queueFilter = new HashFilter();
