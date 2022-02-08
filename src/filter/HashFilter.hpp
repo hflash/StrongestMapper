@@ -80,10 +80,15 @@ public:
             bool toBeFiltered = true;
             bool hashConflict = false;
             bool markCanDead = true;
+            //if newNodeFilter == true then the new node will not be add in the queue
+            bool newNodeFilter=true;
+            //if odlNodeDead ==true then the old node will marked dead
+            bool oldNodeDead=true;
             for (int x = 0; x < numQubits; x++) {
                 if (candidate->l2pMapping[x] != newNode->l2pMapping[x]) {
                     toBeFiltered = false;
                     hashConflict = true;
+
                     break;
                 }
             }
@@ -104,22 +109,108 @@ public:
                 int canBusyTime = candidate->logicalQubitState[x];
                 int newTimeStamp = newBusyTime + newNode->timeStamp;
                 int canTimeStamp = canBusyTime + candidate->timeStamp;
-                if (newTimeStamp < canTimeStamp) {
-                    //new node qubit x get the same state earlier
-                    if(markCanDead)
-                        markCanDead = true;
-                    toBeFiltered = false;
-                } else if (newTimeStamp > canTimeStamp) {
-                    markCanDead = false;
+                if(newTimeStamp < canTimeStamp){
+                    //As long as the new node has a small time on a qubit, it cannot be filtered out
+                    newNodeFilter=false;
                 }
+                if(newTimeStamp > canTimeStamp){
+                    oldNodeDead=false;
+                }
+
+/*                if (newTimeStamp < canTimeStamp) {
+//                    //new node qubit x get the same state earlier
+//                    if(markCanDead)
+//                        markCanDead = true;
+//                    toBeFiltered = false;
+//                } else if (newTimeStamp > canTimeStamp) {
+//                    markCanDead = false;
+//                }
+*/
             }
-            if(markCanDead && !toBeFiltered)
-            {
-                this->numMarkedDead++;
-                candidate->dead = true;
-            }else if (toBeFiltered) {
+            if(newNodeFilter==true){
                 this->numFiltered++;
                 return true;
+            }
+            if(oldNodeDead==true){
+                if(candidate->dead==false){
+                    candidate->dead=true;
+                    this->numMarkedDead++;
+                }
+            }
+
+/*            if(markCanDead && !toBeFiltered)
+//            {
+//                this->numMarkedDead++;
+//                candidate->dead = true;
+//            }else if (toBeFiltered) {
+//                this->numFiltered++;
+//                return true;
+            }
+*/
+        }
+        this->hashmap[hashResult].push_back(newNode);
+        return false;
+    }
+
+    bool filter1(SearchNode *newNode){
+        int numQubits = newNode->environment->getQubitNum();
+        std::size_t hashResult = hashFunc2(newNode);
+        for (SearchNode *candidate: this->hashmap[hashResult]){
+            //candidate如果已经dead则无需考虑
+            if (candidate->dead) {
+                continue;
+            }
+            //判断是否是hash冲突
+            bool conflict=true;
+            //比较mapping
+            for(int i=0;i<numQubits;i++){
+                if(newNode->l2pMapping[i]!=candidate->l2pMapping[i]){
+                    conflict=false;
+                }
+            }
+            //比较remain gate，先比较个数，然后比较大小
+            if(candidate->remainGate.size() != newNode->remainGate.size()){
+                conflict=false;
+            }
+            else{
+                for(int i=0;i<candidate->remainGate.size();i++){
+                    if(candidate->remainGate[i]!=newNode->remainGate[i]){
+                        conflict=false;
+                    }
+                }
+            }
+            //如果冲突就可以跳过这个candidate了，不冲突才进行大小的比较
+            if(conflict==true){
+                continue;
+            }
+            else{
+                //新的结点存在比老的结点好的数值，需要留下来
+                bool newGood=false;
+                //老的结点存在比新的结点好的数值，需要留下来
+                bool oldGood=false;
+                //比较的东西是当前每个比特空闲的时间
+                for(int i=0;i<numQubits;i++){
+                    int newBusyTime = newNode->logicalQubitState[i];
+                    int canBusyTime = candidate->logicalQubitState[i];
+                    int newTimeStamp = newBusyTime + newNode->timeStamp;
+                    int canTimeStamp = canBusyTime + candidate->timeStamp;
+                    if(newTimeStamp<canTimeStamp){
+                        newGood=true;
+                    }
+                    if(canTimeStamp<newTimeStamp){
+                        oldGood=true;
+                    }
+                }
+                if(newGood==false){
+                    this->numFiltered++;
+                    return true;
+                }
+                if(oldGood==false){
+                    if(candidate->dead==false){
+                        candidate->dead=true;
+                        this->numMarkedDead++;
+                    }
+                }
             }
         }
         this->hashmap[hashResult].push_back(newNode);

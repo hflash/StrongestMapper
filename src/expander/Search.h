@@ -30,10 +30,14 @@ public:
     vector<SearchResult*> SearchPath(int k,string type);
     vector<vector<int>> GoodInitialMapping(string type);
     //search k layer circuits, find the best first layer
-    SearchResult SearchKLayer(SearchNode* sn,vector<vector<int>>dagT);
+    //Search the full path of a circuit
+    SearchResult SearchKLayer(SearchNode* sn);
     //search all layer circuits with initial mapping
     SearchResult SearchKLayersWithInitialMapping(vector<int> initialMapping,int k);
     vector<vector<int>> SwapSearch(int k);
+
+    //Search the full path of a circuit
+    SearchResult SearchCircuit(SearchNode* sn);
 
 };
 

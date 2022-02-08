@@ -38,7 +38,9 @@ public:
     }
     bool push(SearchNode* newNode) {
         numPushed++;
-        if(!this->queueFilter->filter(newNode)) {
+        if(!this->queueFilter->filter1(newNode)) {
+//        if(true) {
+//            cout<<"queue +1 true"<<endl;
             bool success = this->pushNode(newNode);
             if(success) {
                 return true;

@@ -23,6 +23,7 @@ SearchNode::SearchNode(vector<int> nowMapping, vector<int> qubitState, vector<ve
     this->computeCost1();
     this->findRemainGates();
     this->actionPath = path;
+    this->pathLength=actionPath.size();
 }
 
 void SearchNode::findRemainGates() {

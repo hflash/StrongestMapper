@@ -27,6 +27,7 @@ struct ActionPath{
 
 class SearchNode {
 private:
+    int pathLength;
     map<int,int> gateCriticality;
     void GetReadyGate();
     void computeCost1();

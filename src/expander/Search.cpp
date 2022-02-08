@@ -10,11 +10,6 @@ Search::Search(Environment *env) {
 
 vector<vector<int>> Search::SwapSearch(int klayer) {
     vector<vector<int>> possibleSwap = this->env->coupling;
-//    cout<<"possible swap:\n";
-//    for(int i=0;i<possibleSwap.size();i++){
-//        cout<<"["<<possibleSwap[i][0]<<" "<<possibleSwap[i][1]<<"] ";
-//    }
-//    cout<<endl;
     vector<vector<vector<int>>> possibleSwapCom;
     vector<vector<int>> temp;
     possibleSwapCom.push_back(temp);
@@ -34,17 +29,7 @@ vector<vector<int>> Search::SwapSearch(int klayer) {
                 //cout<<"possibleSwap K:"<<possibleSwap[k][0]<<" "<<possibleSwap[k][1]<<endl;
                 vector<vector<int>> temp1;
                 temp1 = possibleSwapCom[a];
-//                cout<<"before add:\n";
-//                for(int aa=0;aa<temp1.size();aa++){
-//                    cout<<"["<<temp1[aa][0]<<" "<<temp1[aa][1]<<"] ";
-//                }
-//                cout<<endl;
                 temp1.push_back(possibleSwap[k]);
-//                cout<<"after add:\n";
-//                for(int aa=0;aa<temp1.size();aa++){
-//                    cout<<"["<<temp1[aa][0]<<" "<<temp1[aa][1]<<"] ";
-//                }
-//                cout<<endl;
                 possibleSwapCom.push_back(temp1);
             }
         }
@@ -126,22 +111,23 @@ vector<vector<int>> Search::GoodInitialMapping(string type) {
     return this->SwapSearch(5);
 }
 
-SearchResult Search::SearchKLayer(SearchNode *sn, vector<vector<int>> dagT) {
+
+SearchResult Search::SearchKLayer(SearchNode *sn) {
     DefaultQueue *nodeQueue = new DefaultQueue();
     nodeQueue->push(sn);
     DefaultExpander nodeExpander(this->env);
+    vector<int> searchNum;
     while (nodeQueue->size() >= 0) {
         SearchNode *expandeNode;
         expandeNode = nodeQueue->pop();
         nodeExpander.expand(nodeQueue, expandeNode);
+        searchNum.push_back(nodeExpander.expandeNum);
         if (nodeExpander.findBestNode == true) {
             break;
         }
     }
     SearchResult sr;
     sr.finalPath = nodeExpander.actionPath;
-    vector<int> searchNum;
-    searchNum.push_back(nodeExpander.expandeNum);
     sr.searchNodeNum = searchNum;
     vector<int> queueNum;
     queueNum.push_back(nodeQueue->numPushed);
@@ -150,7 +136,6 @@ SearchResult Search::SearchKLayer(SearchNode *sn, vector<vector<int>> dagT) {
 }
 
 SearchResult Search::SearchKLayersWithInitialMapping(vector<int> initialMapping, int k) {
-    cout<<"i am here\n";
     vector<int> originMapping = initialMapping;
     int qubitNum = this->env->getQubitNum();
     vector<int> qubitState(qubitNum, 0);
@@ -177,7 +162,7 @@ SearchResult Search::SearchKLayersWithInitialMapping(vector<int> initialMapping,
         }
         vector<ActionPath> initialActionPath;
         SearchNode *sn = new SearchNode(initialMapping, qubitState, k_dag, this->env, 0, initialActionPath);
-        SearchResult srk = this->SearchKLayer(sn, k_dag);
+        SearchResult srk = this->SearchKLayer(sn);
         kLayerSearchNum.push_back(srk.searchNodeNum[0]);
         kLayerQueueNum.push_back(srk.queueNum[0]);
         vector<int> originReadyGates = sn->readyGate;
@@ -206,7 +191,7 @@ SearchResult Search::SearchKLayersWithInitialMapping(vector<int> initialMapping,
     }
     vector<ActionPath> initialActionPath;
     SearchNode *sn = new SearchNode(initialMapping, qubitState, allDag, this->env, 0, initialActionPath);
-    SearchResult srk = this->SearchKLayer(sn, allDag);
+    SearchResult srk = this->SearchKLayer(sn);
     kLayerSearchNum.push_back(srk.searchNodeNum[0]);
     kLayerQueueNum.push_back(srk.queueNum[0]);
     for (int j = 0; j < srk.finalPath.size(); j++) {
@@ -247,4 +232,36 @@ vector<SearchResult *> Search::SearchPath(int k, string type) {
         searchResults.push_back(&sr);
     }
     return searchResults;
+}
+
+
+SearchResult Search::SearchCircuit(SearchNode *sn) {
+    DefaultQueue *nodeQueue = new DefaultQueue();
+    nodeQueue->push(sn);
+    DefaultExpander nodeExpander(this->env);
+    vector<int> searchNum;
+    int whilecount=1;
+    while (nodeQueue->size() >= 0) {
+        cout<<"while count : "<<whilecount<<endl;
+        whilecount++;
+        cout<<"queue node size : "<<nodeQueue->size()<<endl;
+        bool ifFind;
+        SearchNode *expandeNode;
+        expandeNode = nodeQueue->pop();
+//        cout<<endl<<endl<<endl;
+        cout<<"father node path length is : "<<expandeNode->actionPath.size()<<" and the timestamp is : "<<expandeNode->timeStamp<<endl;
+//        expandeNode->PrintNode();
+        ifFind=nodeExpander.expand(nodeQueue, expandeNode);
+        searchNum.push_back(nodeExpander.expandeNum);
+        if (ifFind == true) {
+            break;
+        }
+    }
+    SearchResult sr;
+    sr.finalPath = nodeExpander.actionPath;
+    sr.searchNodeNum = searchNum;
+    vector<int> queueNum;
+    queueNum.push_back(nodeQueue->numPushed);
+    sr.queueNum = queueNum;
+    return sr;
 }
