@@ -260,7 +260,7 @@ void SearchNode::computeCost1() {
             cost = cost2;
         }
     }
-    this->cost1 = cost + timeStamp;
+    this->cost1 = cost + this->timeStamp;
 }
 
 void SearchNode::PrintNode() {

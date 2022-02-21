@@ -17,6 +17,7 @@ public:
     //best node answer
     bool findBestNode;
     int expandeNum;
+    int cycleNum;
     vector<ActionPath> actionPath;
     vector<int> initialMapping;
 

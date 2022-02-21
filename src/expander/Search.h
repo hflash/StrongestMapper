@@ -20,6 +20,7 @@ struct SearchResult{
     vector<int> searchNodeNum;
     vector<int> queueNum;
     int patternNum;
+    int cycleNum;
     int swapNum;
 };
 
@@ -36,8 +37,10 @@ public:
     SearchResult SearchKLayersWithInitialMapping(vector<int> initialMapping,int k);
     vector<vector<int>> SwapSearch(int k);
 
-    //Search the full path of a circuit
+    //search full path in sn->remainGate
     SearchResult SearchCircuit(SearchNode* sn);
+    //smooth search
+    SearchResult SearchSmoothWithInitialMapping(vector<int> mapping,int k);
 
 };
 

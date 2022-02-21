@@ -184,10 +184,13 @@ public:
                 continue;
             }
             else{
+
                 //新的结点存在比老的结点好的数值，需要留下来
                 bool newGood=false;
                 //老的结点存在比新的结点好的数值，需要留下来
                 bool oldGood=false;
+                //判断两个node是否完全相等
+                bool equal=true;
                 //比较的东西是当前每个比特空闲的时间
                 for(int i=0;i<numQubits;i++){
                     int newBusyTime = newNode->logicalQubitState[i];
@@ -196,20 +199,20 @@ public:
                     int canTimeStamp = canBusyTime + candidate->timeStamp;
                     if(newTimeStamp<canTimeStamp){
                         newGood=true;
+                        equal=false;
                     }
                     if(canTimeStamp<newTimeStamp){
                         oldGood=true;
+                        equal=false;
                     }
                 }
-                if(newGood==false){
+                if(newGood==false||equal==true){
                     this->numFiltered++;
                     return true;
                 }
                 if(oldGood==false){
-                    if(candidate->dead==false){
-                        candidate->dead=true;
-                        this->numMarkedDead++;
-                    }
+                    candidate->dead=true;
+                    this->numMarkedDead++;
                 }
             }
         }

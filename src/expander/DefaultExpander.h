@@ -21,6 +21,7 @@ public:
      * False: there is no cnot in an unscheduled, no need for swap
      */
     bool IsMoreCnot(SearchNode* node);
+    bool IsMoreSwap(SearchNode* node);
     /*Given the ready gates, give their combination,
      * if not all of them are combined, then the pattern is encountered
      */
@@ -35,9 +36,13 @@ public:
      * Output a combination of swaps that can be executed
      */
     vector<vector<vector<int>>> SwapCom(vector<int> qubitState,vector<int> l2pmapping);
+    vector<vector<vector<int>>> SwapCom1(vector<int> qubitState,vector<int> l2pmapping,vector<vector<int>> dTable);
 
     bool expand( DefaultQueue* nodes,SearchNode* node);
+
+    bool expand1( DefaultQueue* nodes,SearchNode* node);
     bool IsCycle(vector<ActionPath> actionPath,int qubitNum);
+    bool IsCycle1(vector<ActionPath> actionPath,int qubitNum);
 };
 
 

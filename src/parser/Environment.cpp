@@ -58,13 +58,13 @@ vector<vector<int>> Environment::generateDag(vector<int> gateIDs) {
                 }
         }
 
-//        for (int i = 0; i < nowDagDepth; i++) {
-//            for (int j = 0; j < newDag.size(); j++) {
-//                cout << newDag[j][i] << " ";
-//            }
-//            cout << endl;
-//        }
-//    cout<<"begin---------------------\n";
+/*        for (int i = 0; i < nowDagDepth; i++) {
+            for (int j = 0; j < newDag.size(); j++) {
+                cout << newDag[j][i] << " ";
+            }
+            cout << endl;
+        }
+    cout<<"-----------------------\n";*/
 //    for(int i=0;i<newDag.size();i++){
 //        cout<<"i="<<i<<" ";
 //        for(int j=0;j<newDag[i].size();j++){

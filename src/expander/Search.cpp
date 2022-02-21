@@ -236,23 +236,35 @@ vector<SearchResult *> Search::SearchPath(int k, string type) {
 
 
 SearchResult Search::SearchCircuit(SearchNode *sn) {
+//    for(int i=0;i<sn->dagTable[0].size();i++){
+//        for(int j=0;j<sn->dagTable.size();j++){
+//            cout<<sn->dagTable[j][i]<<" ";
+//        }
+//        cout<<endl;
+//    }
     DefaultQueue *nodeQueue = new DefaultQueue();
     nodeQueue->push(sn);
     DefaultExpander nodeExpander(this->env);
     vector<int> searchNum;
+    int cycleNum=0;
     int whilecount=1;
     while (nodeQueue->size() >= 0) {
-        cout<<"while count : "<<whilecount<<endl;
+//        cout<<"while count : "<<whilecount<<endl;
         whilecount++;
-        cout<<"queue node size : "<<nodeQueue->size()<<endl;
+//        cout<<"queue node size : "<<nodeQueue->size()<<endl;
         bool ifFind;
         SearchNode *expandeNode;
         expandeNode = nodeQueue->pop();
-//        cout<<endl<<endl<<endl;
-        cout<<"father node path length is : "<<expandeNode->actionPath.size()<<" and the timestamp is : "<<expandeNode->timeStamp<<endl;
-//        expandeNode->PrintNode();
-        ifFind=nodeExpander.expand(nodeQueue, expandeNode);
+        if(whilecount%1000==0){
+            cout<<"while count : "<<whilecount<<endl;
+            cout<<"queue node size : "<<nodeQueue->size()<<endl;
+            cout<<endl<<endl<<endl;
+            cout<<"father node path length is : "<<expandeNode->actionPath.size()<<" and the timestamp is : "<<expandeNode->timeStamp<<endl;
+            expandeNode->PrintNode();
+        }
+        ifFind=nodeExpander.expand1(nodeQueue, expandeNode);
         searchNum.push_back(nodeExpander.expandeNum);
+        cycleNum=cycleNum+nodeExpander.cycleNum;
         if (ifFind == true) {
             break;
         }
@@ -263,5 +275,132 @@ SearchResult Search::SearchCircuit(SearchNode *sn) {
     vector<int> queueNum;
     queueNum.push_back(nodeQueue->numPushed);
     sr.queueNum = queueNum;
+    sr.cycleNum=cycleNum;
     return sr;
+}
+
+SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) {
+    vector<int> originMapping = mapping;
+    int qubitNum = this->env->getQubitNum();
+    vector<int> qubitState(qubitNum, 0);
+    vector<vector<int>> allDag = this->env->getGateDag();
+    vector<int> topoGate=this->env->getTopoGate();
+    int nowTime=0;
+    vector<ActionPath> path;
+    if(allDag[0].size()<=k){
+        //如果层数小于k层，那么自己搜索完就好
+        SearchNode *sn = new SearchNode(mapping, qubitState, allDag, env, nowTime, path);
+        Search *sr = new Search(env);
+        SearchResult a = this->SearchCircuit(sn);
+        return a;
+    }
+    else{
+        //如果层数大于k层，那么每次取前k层的dag
+        SearchResult searR;
+        searR.cycleNum=0;
+        searR.patternNum=0;
+        searR.swapNum=0;
+        searR.initialMapping=mapping;
+        vector<int> nowMapping=mapping;
+        vector<int> nowQubitState(qubitNum, 0);
+        vector<ActionPath>finalPath;
+        while(topoGate.size()>0){
+            vector<ActionPath> newPath;
+            vector<vector<int>> kDag=env->getNewKLayerDag(topoGate,k);
+            cout<<"topo gate : ";
+            for(int i=0;i<topoGate.size();i++){
+                cout<<topoGate[i]<<" ";
+            }
+            cout<<endl;
+            cout<<"the k-dag depth is "<<kDag[0].size()<<endl;
+            if(kDag[0].size()<=k){
+                //如果最新的只有k层了，那么就直接搜索完
+                SearchNode *sn = new SearchNode(nowMapping, nowQubitState, kDag, env, nowTime, newPath);
+                Search *sr = new Search(env);
+                SearchResult a = sr->SearchCircuit(sn);
+                //把最后的每层的数据放到原来的final path里，统计计算swapNum的数目
+                for(int i=0;i<a.finalPath.size();i++){
+                    finalPath.push_back(a.finalPath[i]);
+                    for(int j=0;j<a.finalPath[i].actions.size();j++){
+                        if(a.finalPath[i].actions[j].gateName=="swap"){
+                            searR.swapNum++;
+                        }
+                    }
+                }
+                //修改searchResult里面的统计数据
+                int patternNum=0;
+                for(int i=0;i<finalPath.size();i++){
+                    if(finalPath[i].pattern==true){
+                        patternNum++;
+                    }
+                }
+                searR.finalPath=finalPath;
+                searR.patternNum=patternNum;
+                int searNum=0;
+                for(int i=0;i<a.searchNodeNum.size();i++){
+                    searNum=searNum+a.searchNodeNum[i];
+                }
+                searR.searchNodeNum.push_back(searNum);
+                int queueNum=0;
+                for(int i=0;i<a.queueNum.size();i++){
+                    queueNum=queueNum+a.queueNum[i];
+                }
+                searR.queueNum.push_back(queueNum);
+                searR.cycleNum=searR.cycleNum+a.cycleNum;
+                return searR;
+            }
+            else{
+                SearchNode *sn = new SearchNode(nowMapping, nowQubitState, kDag, env, nowTime, newPath);
+                Search *sr = new Search(env);
+                SearchResult a = sr->SearchCircuit(sn);
+                //取完第一层后的结点状态
+                finalPath.push_back(a.finalPath[0]);
+                int swapNum;
+                for(int i=0;i<a.finalPath[0].actions.size();i++){
+                    if (a.finalPath[0].actions[i].gateName == "swap") {
+                        //如果是swap修改mapping映射情况，以及qubitState
+                        int phyQubit1 = a.finalPath[0].actions[i].targetQubit;
+                        int phyQubit2 = a.finalPath[0].actions[i].controlQubit;
+                        int temp = nowMapping[phyQubit1];
+                        nowMapping[phyQubit1] = nowMapping[phyQubit2];
+                        nowMapping[phyQubit2] = temp;
+                        nowQubitState[nowMapping[phyQubit1]] = 3;
+                        nowQubitState[nowMapping[phyQubit2]] = 3;
+                        swapNum++;
+                    }
+                    else {
+                        //如果是执行的结点，topoGate删除这个结点
+                        int j=0;
+                        for(j=0;j<topoGate.size();j++){
+                            if(topoGate[j]==a.finalPath[0].actions[i].gateID){
+                                break;
+                            }
+                        }
+                        auto iter = topoGate.erase(topoGate.begin() + j);
+                    }
+                }
+                //修改qubitState
+                for(int i=0;i<nowQubitState.size();i++){
+                    if(nowQubitState[i]>0){
+                        nowQubitState[i]--;
+                    }
+                }
+                nowTime++;
+                //更新searchResult里面的数据
+                int searNum=0;
+                for(int i=0;i<a.searchNodeNum.size();i++){
+                    searNum=searNum+a.searchNodeNum[i];
+                }
+                searR.searchNodeNum.push_back(searNum);
+                int queueNum=0;
+                for(int i=0;i<a.queueNum.size();i++){
+                    queueNum=queueNum+a.queueNum[i];
+                }
+                searR.queueNum.push_back(queueNum);
+                searR.cycleNum=searR.cycleNum+a.cycleNum;
+                searR.swapNum=searR.swapNum+swapNum;
+            }
+        }
+        return searR;
+    }
 }
