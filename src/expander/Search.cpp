@@ -304,16 +304,12 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
         vector<int> nowMapping=mapping;
         vector<int> nowQubitState(qubitNum, 0);
         vector<ActionPath>finalPath;
+        vector<int> executedgateIDs;
         while(topoGate.size()>0){
             vector<ActionPath> newPath;
-            vector<vector<int>> kDag=env->getNewKLayerDag(topoGate,k);
-            cout<<"topo gate : ";
-            for(int i=0;i<topoGate.size();i++){
-                cout<<topoGate[i]<<" ";
-            }
-            cout<<endl;
+            vector<vector<int>> kDag=env->getNewKLayerDag(executedgateIDs,k);
             cout<<"the k-dag depth is "<<kDag[0].size()<<endl;
-            if(kDag[0].size()<=k){
+            if(kDag[0].size()<k){
                 //如果最新的只有k层了，那么就直接搜索完
                 SearchNode *sn = new SearchNode(nowMapping, nowQubitState, kDag, env, nowTime, newPath);
                 Search *sr = new Search(env);
@@ -370,13 +366,14 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
                     }
                     else {
                         //如果是执行的结点，topoGate删除这个结点
-                        int j=0;
-                        for(j=0;j<topoGate.size();j++){
-                            if(topoGate[j]==a.finalPath[0].actions[i].gateID){
-                                break;
-                            }
-                        }
-                        auto iter = topoGate.erase(topoGate.begin() + j);
+                        executedgateIDs.push_back(a.finalPath[0].actions[i].gateID);
+/*//                        int j=0;
+//                        for(j=0;j<topoGate.size();j++){
+//                            if(topoGate[j]==a.finalPath[0].actions[i].gateID){
+//                                break;
+//                            }
+//                        }
+//                        auto iter = topoGate.erase(topoGate.begin() + j);*/
                     }
                 }
                 //修改qubitState
