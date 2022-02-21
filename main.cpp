@@ -8,25 +8,6 @@
 
 using namespace std;
 
-inline std::size_t hashFunc3
-        (SearchNode *node) {
-
-    std::size_t hashResult = 0;
-    int numQubits = node->environment->getQubitNum();
-    int numRemainGates = node->remainGate.size();
-    //conbine into hash: qubit mapping
-    for (int x = 0; x < numQubits; x++)
-        hash_combine(hashResult, node->l2pMapping[x]);
-
-    //combine into hash: remainGate
-    //remainGate is unique topological sort
-    for (int i = 0; i < numRemainGates; i++) {
-        hash_combine(hashResult, node->remainGate[i]);
-    }
-
-    return hashResult;
-}
-
 void PrintPath(SearchResult a){
     cout << "how many path has done: " << a.finalPath.size() << endl;
     for (int i = 0; i < a.finalPath.size(); i++) {
@@ -36,9 +17,24 @@ void PrintPath(SearchResult a){
         }
         cout << endl;
     }
+    int count=0;
+    for(int i=0;i<a.searchNodeNum.size();i++){
+        count=count+a.searchNodeNum[i];
+    }
+    cout<<"search node number: "<<count<<endl;
+    int pattern=0;
+    for(int i=0;i<a.finalPath.size();i++){
+        if(a.finalPath[i].pattern==true){
+            pattern++;
+        }
+    }
+    cout<<"pattern number: "<<pattern<<endl;
+    cout<<"cycle num is "<<a.cycleNum<<endl;
+
 }
 
 int main() {
+
     string fname = "D:\\study\\SearchCompiler\\small\\small\\4mod5.qasm";
     vector<vector<int>> coupling;
     coupling = {{0, 1},
@@ -47,16 +43,24 @@ int main() {
                 {3, 4}};
     Environment *env = new Environment(fname, coupling);
     DefaultExpander *exp = new DefaultExpander(env);
-    vector<int> mapping = {0, 1, 2, 3, 4};
-    vector<int> mapping1 = {0, 1, 2, 4, 3};
+    vector<int> mapping = {0,1,2,3,4};
     vector<int> qubitState = {0, 0, 0, 0, 0};
     vector<vector<int>> dagTable = env->getGateDag();
+    cout<<"dag depth : "<<dagTable[0].size()<<endl;
     int nowTime = 0;
     vector<ActionPath> path;
     SearchNode *sn = new SearchNode(mapping, qubitState, dagTable, env, nowTime, path);
-    std::size_t hashResult = hashFunc2(sn);
+/*    vector<vector<vector<int>>> aa=exp->SwapCom1(qubitState,mapping,dagTable);
+    for(int i=0;i<aa.size();i++){
+        for(int j=0;j<aa[i].size();j++){
+            cout<<"swap: "<<aa[i][j][0]<<" "<<aa[i][j][1]<<"  ";
+        }
+        cout<<endl;
+    }*/
     Search *sr = new Search(env);
-    SearchResult a = sr->SearchCircuit(sn);
+//    SearchResult a = sr->SearchCircuit(sn);
+    SearchResult a=sr->SearchSmoothWithInitialMapping(mapping,5);
+    PrintPath(a);
     cout << endl;
     return 0;
 }
