@@ -34,7 +34,7 @@ void PrintPath(SearchResult a) {
 }
 
 int main() {
-    string fname = "../circuits/small/mod5mils_65.qasm";
+    string fname = "../circuits/small/3_17_13.qasm";
     vector<vector<int>> coupling;
     coupling = {{0, 1},
                 {1, 2},
@@ -42,22 +42,13 @@ int main() {
                 {3, 4}};
     Environment *env = new Environment(fname, coupling);
     DefaultExpander *exp = new DefaultExpander(env);
-    vector<int> mapping = {0, 1, 2, 3, 4};
-    vector<int> qubitState = {0, 0, 0, 0, 0};
+    vector<int> mapping;
+    for(int i=0;i<env->getQubitNum();i++){
+        mapping.push_back(i);
+    }
     vector<vector<int>> dagTable = env->getGateDag();
     cout << "dag depth : " << dagTable[0].size() << endl;
-    int nowTime = 0;
-    vector<ActionPath> path;
-    SearchNode *sn = new SearchNode(mapping, qubitState, dagTable, env, nowTime, path);
-/*    vector<vector<vector<int>>> aa=exp->SwapCom1(qubitState,mapping,dagTable);
-    for(int i=0;i<aa.size();i++){
-        for(int j=0;j<aa[i].size();j++){
-            cout<<"swap: "<<aa[i][j][0]<<" "<<aa[i][j][1]<<"  ";
-        }
-        cout<<endl;
-    }*/
     Search *sr = new Search(env);
-//    SearchResult a = sr->SearchCircuit(sn);
     SearchResult a = sr->SearchSmoothWithInitialMapping(mapping, 5);
     PrintPath(a);
     cout << endl;

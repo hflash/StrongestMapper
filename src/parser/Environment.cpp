@@ -105,12 +105,19 @@ vector<vector<int>> Environment::MakeCouplingGraph(vector<vector<int>> coupling)
 }
 
 Environment::Environment(string name, vector<vector<int>> coupling) {
+    //比特数目以物理比特为准，通过coupling来得到比特数目
+    //这里假设coupling是一个连通图，编号是从0开始，没有跳跃
+    set<int> phyQubits;
+    for(int i=0;i<coupling.size();i++){
+        phyQubits.insert(coupling[i][0]);
+        phyQubits.insert(coupling[i][1]);
+    }
+    this->qubitNum=phyQubits.size();
     this->coupling=coupling;
     string filename = name;
     cout << filename << endl;
     QASMparser qasm_parser(filename);
     qasm_parser.GenerateGateInfo();
-    this->qubitNum = qasm_parser.GetQubitNum();
     cout << "qubit num:" << this->qubitNum << endl;
     this->gateNum = qasm_parser.GetGateNum();
     this->gateInfo = qasm_parser.GetGateInfo();
