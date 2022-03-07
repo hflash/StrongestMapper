@@ -308,7 +308,7 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
         while(topoGate.size()>0){
             vector<ActionPath> newPath;
             vector<vector<int>> kDag=env->getNewKLayerDag(executedgateIDs,k);
-            cout<<"the k-dag depth is "<<kDag[0].size()<<endl;
+            //cout<<"the k-dag depth is "<<kDag[0].size()<<endl;
             if(kDag[0].size()<k){
                 //如果最新的只有k层了，那么就直接搜索完
                 SearchNode *sn = new SearchNode(nowMapping, nowQubitState, kDag, env, nowTime, newPath);
@@ -346,11 +346,20 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
                 return searR;
             }
             else{
+                cout<<"a new layer "<<endl;
                 SearchNode *sn = new SearchNode(nowMapping, nowQubitState, kDag, env, nowTime, newPath);
+                sn->PrintNode();
                 Search *sr = new Search(env);
                 SearchResult a = sr->SearchCircuit(sn);
                 //取完第一层后的结点状态
                 finalPath.push_back(a.finalPath[0]);
+                for(int i=0;i<a.finalPath.size();i++){
+                    for(int j=0;j<a.finalPath[i].actions.size();j++){
+                        cout << a.finalPath[i].actions[j].gateID << " " << a.finalPath[i].actions[j].gateName << " "
+                             << a.finalPath[i].actions[j].controlQubit << " " << a.finalPath[i].actions[j].targetQubit << "   ";
+                    }
+                    cout<<endl;
+                }
                 int swapNum;
                 for(int i=0;i<a.finalPath[0].actions.size();i++){
                     if (a.finalPath[0].actions[i].gateName == "swap") {

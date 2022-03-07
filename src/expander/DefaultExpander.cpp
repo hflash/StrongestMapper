@@ -83,7 +83,12 @@ void DefaultExpander::expandWithoutSwap(SearchNode *node) {
         for(int i=0;i<readyGate.size();i++){
             ScheduledGate Sg;
             Sg.gateName=this->env->gateInfo.find(readyGate[i])->second.Name;
-            Sg.controlQubit=-1;
+            if(Sg.gateName=="cx"){
+                Sg.controlQubit=node->p2lMapping[this->env->gateInfo.find(readyGate[i])->second.controlQubit];
+            }
+            else{
+                Sg.controlQubit=-1;
+            }
             Sg.targetQubit=node->p2lMapping[this->env->gateInfo.find(readyGate[i])->second.targetQubit];
             Sg.gateID=readyGate[i];
             thisTimeSchduledGate.push_back(Sg);
@@ -372,6 +377,19 @@ bool DefaultExpander::expand1(DefaultQueue *nodes, SearchNode *node) {
     else{
         //先执行所有的swap组合，然后再是能执行的ready gate都执行
         vector<vector<vector<int>>> possibleSwap=this->SwapCom1(node->logicalQubitState,node->l2pMapping,node->dagTable);
+        for(int i=0;i<possibleSwap.size(); i++){
+            for(int j=0;j<possibleSwap[i].size();j++){
+                cout<<"swap:"<<possibleSwap[i][j][0]<<" "<<possibleSwap[i][j][1]<<"  ";
+            }
+            cout<<endl;
+        }
+/*        for(int i=0;i<possibleSwap.size();i++){
+            for(int j=0;j<possibleSwap[i].size();j++){
+                cout<<"swap: ["<<possibleSwap[i][j][0]<<" "<<possibleSwap[i][j][1]<<"] ";
+            }
+        }
+        cout<<endl;
+        */
         for(int i=0; i < possibleSwap.size(); i++){
             //执行所有的swap组合
             vector<int> qubitState1=node->logicalQubitState;
@@ -486,7 +504,8 @@ bool DefaultExpander::expand1(DefaultQueue *nodes, SearchNode *node) {
             if(this->IsCycle1(path,qubitState1.size())==false){
                 countNum++;
                 SearchNode* sn= new SearchNode(mapping,qubitState1,newDagtable,env,timeStamp,path);
-                //sn->PrintNode();
+                sn->PrintNode();
+
                 nodes->push(sn);
                 //cout<<endl;
             }

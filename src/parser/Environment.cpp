@@ -253,12 +253,12 @@ vector<vector<int>> Environment::getNewKLayerDag(vector<int> executedgateIDs,int
                 this->gateInfo.find(newKLayerDag[i][j])->second.criticality = dagDepth - j;
             }
     }
-//    for (int i = 0; i < nowDagDepth; i++) {
-//        for (int j = 0; j < newKLayerDag.size(); j++) {
-//            cout << newKLayerDag[j][i] << " ";
-//        }
-//        cout << endl;
-//    }
+ /*   for (int i = 0; i < nowDagDepth; i++) {
+        for (int j = 0; j < newKLayerDag.size(); j++) {
+            cout << newKLayerDag[j][i] << " ";
+        }
+        cout << endl;
+    }*/
     return newKLayerDag;
 }
 

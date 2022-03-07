@@ -94,25 +94,24 @@ void SearchNode::gate2Critiality() {
         for (int j = 0; j < this->dagTable.size(); j++) {
             int gateid = dagTable[j][i];
             if (this->gateCriticality.find(gateid) == this->gateCriticality.end()) {
-                int criticality = depth - i;
+                int criticality = depth - i-1;
                 this->gateCriticality.insert({gateid, criticality});
             }
         }
     }
 }
 
-int SearchNode::findFreeTimePhysical(int physicalQubit, int gateID) {
+int SearchNode::findFreeTime(int qubit, int gateID) {
     int depth = this->dagTable[0].size();
     int path = 0;
     int i=0;
-    int logicalQubit = this->l2pMapping[physicalQubit];
-    while (dagTable[logicalQubit][i] != gateID) {
-        if(dagTable[logicalQubit][i]==0){
+    while (dagTable[qubit][i] != gateID) {
+        if(dagTable[qubit][i]!=0){
             path++;
         }
         i++;
     }
-    path = path + this->logicalQubitState[this->l2pMapping[physicalQubit]];
+    path = path + this->logicalQubitState[qubit];
     return path;
 }
 
@@ -209,12 +208,8 @@ void SearchNode::computeCost1() {
     int waitTime = busyTime();
     int cost = waitTime;
     vector<int> frontLayer = this->findFrontTwoQubitsGates();
-//    cout << "The frontLayer is: \n";
-//    for (int i = 0; i < frontLayer.size(); i++) {
-//        cout << frontLayer[i] << " ";
-//    }
-//    cout << endl;
     int gateNum = frontLayer.size();
+    int costT = 99999;
     map<int, int> gateCost;
     for (int i = 0; i < gateNum; i++) {
         int gateId = frontLayer[i];
@@ -222,14 +217,16 @@ void SearchNode::computeCost1() {
         int qubit1 = this->environment->gateInfo.find(gateId)->second.controlQubit;
         int qubit2 = this->environment->gateInfo.find(gateId)->second.targetQubit;
 //        int length1 = this->findFreeTimePhysical(this->p2lMapping[qubit1]);
-        int length1 = this->findFreeTimePhysical(this->p2lMapping[qubit1], gateId);
+        int length1 = this->findFreeTime(qubit1, gateId);
 //        cout << "logical qubit is " << qubit1 << " and the length is " << length1 <<endl;
 //        int length2 = this->findFreeTimePhysical(this->p2lMapping[qubit2]);
-        int length2 = this->findFreeTimePhysical(this->p2lMapping[qubit2], gateId);
+        int length2 = this->findFreeTime(qubit2, gateId);
 //        cout << "logical qubit is " << qubit2 << " and the length is " << length2 << endl;
         if (length1 < length2) {
             std::swap(length1, length2);
         }
+        int minSwaps=this->environment->couplingGraph[this->p2lMapping[qubit1]][this->p2lMapping[qubit2]]-1;
+        if(minSwaps < costT) costT = minSwaps;
         int totalSwap = this->environment->couplingGraph[this->p2lMapping[qubit1]][this->p2lMapping[qubit2]]-1;
 //        cout<<this->p2lMapping[qubit1]<<" "<<this->p2lMapping[qubit2]<<endl;
 //        cout<<"total Swap is: "<<totalSwap<<endl;
@@ -243,9 +240,9 @@ void SearchNode::computeCost1() {
         int extraSwapCost = (0x1 & (mutualSwapCost / 3)) * 3;
         mutualSwapCost -= extraSwapCost;
         mutualSwapCost = mutualSwapCost >> 1;
-
-        int cost1 = 1 +this->gateCriticality.find(gateId)->second + length1 + mutualSwapCost;
-        int cost2 = 1 + this->gateCriticality.find(gateId)->second + length2 + mutualSwapCost + effectiveSlack;
+        int gate_criticality=this->gateCriticality.find(gateId)->second;
+        int cost1 = 1+gate_criticality + length1 + mutualSwapCost;
+        int cost2 = 1+gate_criticality + length2 + mutualSwapCost + effectiveSlack;
 //        cout<<"cost1 is "<<cost1<<" "<<"cost2 is "<<cost2<<" critial is "<<this->gateCriticality.find(gateId)->second<<" mutualSwapCost is : "<< mutualSwapCost<<" effectiveSlack is : "<<effectiveSlack<<endl;
 
         if (cost1 < cost2) {
@@ -260,6 +257,8 @@ void SearchNode::computeCost1() {
             cost = cost2;
         }
     }
+    if(costT == 99999) costT = 0;
+    this->cost2 = costT;
     this->cost1 = cost + this->timeStamp;
 }
 
@@ -269,7 +268,8 @@ void SearchNode::PrintNode() {
         cout<<this->l2pMapping[i]<<" ";
     }
     cout<<endl;
-    cout<<"the cost is : "<<this->cost1<<endl;
+    cout<<"the cost1 is : "<<this->cost1<<endl;
+    cout<<"the cost2 is : "<<this->cost2<<endl;
     cout<<"the reamin ready gates are : ";
     for(int i=0;i<this->readyGate.size();i++){
         cout<<this->readyGate[i]<<" ";
@@ -288,4 +288,5 @@ void SearchNode::PrintNode() {
         }
         cout<<endl;
     }
+    cout<<endl<<endl;
 }

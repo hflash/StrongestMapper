@@ -105,6 +105,6 @@ void QASMparser::GenerateGateInfo() {
     }
     map<int, GateNode>::iterator iter;
     for (iter = this->GateInfo.begin(); iter != this->GateInfo.end(); iter++) {
-        cout << iter->first << " " << iter->second.Name << endl;
+        cout << iter->first << " " << iter->second.Name <<" " << iter->second.controlQubit<<" " << iter->second.targetQubit<< endl;
     }
 }

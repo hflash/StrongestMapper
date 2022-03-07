@@ -35,7 +35,7 @@ private:
     void gate2Critiality();
     void findRemainGates();
     int findFreeTimePhysical(int physicalQubit);
-    int findFreeTimePhysical(int physicalQubit,int gateID);
+    int findFreeTime(int physicalQubit,int gateID);
     int busyTime();
     vector<int> findFrontTwoQubitsGates();
 
