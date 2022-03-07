@@ -4,6 +4,8 @@
 
 #include "DefaultExpander.h"
 
+int DefaultExpander::nodeCount=1;
+
 DefaultExpander::DefaultExpander(Environment *env) {
     this->env=env;
     this->cycleNum=0;
@@ -503,7 +505,9 @@ bool DefaultExpander::expand1(DefaultQueue *nodes, SearchNode *node) {
             int timeStamp=node->timeStamp+1;
             if(this->IsCycle1(path,qubitState1.size())==false){
                 countNum++;
+                nodeCount++;
                 SearchNode* sn= new SearchNode(mapping,qubitState1,newDagtable,env,timeStamp,path);
+                sn->nodeID=nodeCount;
                 sn->PrintNode();
 
                 nodes->push(sn);

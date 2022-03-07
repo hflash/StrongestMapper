@@ -412,6 +412,8 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
 }
 
 SearchResult Search::SearchCircuit1(SearchNode *sn) {
+    ofstream outfile;
+    outfile.open("queue_node.txt");
     DefaultQueue *nodeQueue = new DefaultQueue();
     nodeQueue->push(sn);
     DefaultExpander nodeExpander(this->env);
@@ -424,14 +426,33 @@ SearchResult Search::SearchCircuit1(SearchNode *sn) {
         SearchNode *expandeNode;
         //打印queue中的数据
         DefaultQueue *nodeQueue1 = new DefaultQueue();
-        cout<<"----------------------------print queue-------------------------"<<endl;
-        cout<<"----------------------------------------------------------------"<<endl;
+        outfile<<"----------------------------print queue-------------------------"<<endl;
+        outfile<<"----------------------------------------------------------------"<<endl;
         int countQueueNum=0;
         while(nodeQueue->size()>0){
             SearchNode *it;
             it=nodeQueue->pop();
-            cout<<"the "<<countQueueNum<<"th in the queue :"<<endl;
-            it->PrintNode();
+            outfile<<"the "<<countQueueNum<<"th in the queue :"<<endl;
+            outfile<<"the mapping now is : ";
+            for(int i=0;i<it->l2pMapping.size();i++){
+                outfile<<it->l2pMapping[i]<<" ";
+            }
+            outfile<<endl;
+            outfile<<"the ID is : "<<it->nodeID<<endl;
+            outfile<<"the cost1 is : "<<it->cost1<<endl;
+            outfile<<"the cost2 is : "<<it->cost2<<endl;
+            outfile<<"the time step is: "<<it->timeStamp<<endl;
+            outfile<<"the reamin gate num is : "<<it->remainGate.size()<<endl;
+            outfile<<"the reamin ready gates are : ";
+            for(int i=0;i<it->readyGate.size();i++){
+                outfile<<it->readyGate[i]<<" ";
+            }
+            outfile<<endl;
+            outfile<<"the qubits state are :";
+            for(int i=0;i<it->qubitNum;i++){
+                outfile<<it->logicalQubitState[i]<<" ";
+            }
+            outfile<<endl<<endl;
             nodeQueue1->push(it);
             countQueueNum++;
         }
@@ -441,7 +462,7 @@ SearchResult Search::SearchCircuit1(SearchNode *sn) {
             nodeQueue->push1(it1);
         }
         cout<<"------------------------------------------------------------------"<<endl;
-        cout<<"------------------------------------------------------------------"<<endl;
+        cout<<"------------------------------------------------------------------"<<endl<<endl;
         expandeNode = nodeQueue->pop();
         ifFind=nodeExpander.expand1(nodeQueue, expandeNode);
         searchNum.push_back(nodeExpander.expandeNum);
@@ -450,6 +471,7 @@ SearchResult Search::SearchCircuit1(SearchNode *sn) {
             break;
         }
     }
+    outfile.close();
     SearchResult sr;
     sr.finalPath = nodeExpander.actionPath;
     sr.searchNodeNum = searchNum;

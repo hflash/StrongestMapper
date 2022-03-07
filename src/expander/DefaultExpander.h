@@ -15,6 +15,7 @@ class DefaultExpander: public Expander {
 private:
     Environment* env;
 public:
+    static int nodeCount;
 //    void DeleteVectorElement(vector<int> V,int element);
     DefaultExpander(Environment* env);
     /* True: there is more cnot in an unscheduled

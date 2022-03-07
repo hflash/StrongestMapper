@@ -44,6 +44,7 @@ public:
     bool dead;
     int timeStamp;
     int qubitNum;
+    int nodeID;
     //initail mapping
     vector<int> initialMapping;
     //logical on physical
