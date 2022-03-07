@@ -56,7 +56,7 @@ int main() {
     vector<ActionPath> newPath;
     SearchNode *sn =new SearchNode(mapping,qubitSate,dagTable5, env, 1, newPath);
 //    sn->PrintNode();
-    SearchResult a = sr->SearchCircuit(sn);
+    SearchResult a = sr->SearchCircuit1(sn);
     PrintPath(a);
 
 

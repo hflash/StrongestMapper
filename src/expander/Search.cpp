@@ -410,3 +410,52 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
         return searR;
     }
 }
+
+SearchResult Search::SearchCircuit1(SearchNode *sn) {
+    DefaultQueue *nodeQueue = new DefaultQueue();
+    nodeQueue->push(sn);
+    DefaultExpander nodeExpander(this->env);
+    vector<int> searchNum;
+    int cycleNum=0;
+    int whilecount=1;
+    while (nodeQueue->size() >= 0) {
+        whilecount++;
+        bool ifFind;
+        SearchNode *expandeNode;
+        //打印queue中的数据
+        DefaultQueue *nodeQueue1 = new DefaultQueue();
+        cout<<"----------------------------print queue-------------------------"<<endl;
+        cout<<"----------------------------------------------------------------"<<endl;
+        int countQueueNum=0;
+        while(nodeQueue->size()>0){
+            SearchNode *it;
+            it=nodeQueue->pop();
+            cout<<"the "<<countQueueNum<<"th in the queue :"<<endl;
+            it->PrintNode();
+            nodeQueue1->push(it);
+            countQueueNum++;
+        }
+        while(nodeQueue1->size()>0){
+            SearchNode *it1;
+            it1=nodeQueue1->pop();
+            nodeQueue->push1(it1);
+        }
+        cout<<"------------------------------------------------------------------"<<endl;
+        cout<<"------------------------------------------------------------------"<<endl;
+        expandeNode = nodeQueue->pop();
+        ifFind=nodeExpander.expand1(nodeQueue, expandeNode);
+        searchNum.push_back(nodeExpander.expandeNum);
+        cycleNum=cycleNum+nodeExpander.cycleNum;
+        if (ifFind == true) {
+            break;
+        }
+    }
+    SearchResult sr;
+    sr.finalPath = nodeExpander.actionPath;
+    sr.searchNodeNum = searchNum;
+    vector<int> queueNum;
+    queueNum.push_back(nodeQueue->numPushed);
+    sr.queueNum = queueNum;
+    sr.cycleNum=cycleNum;
+    return sr;
+}

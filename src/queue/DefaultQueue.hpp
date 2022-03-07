@@ -18,20 +18,21 @@ private:
     {
         bool operator()(const SearchNode* lhs, const SearchNode* rhs) const
         {
-//            return lhs->cost1 > rhs->cost1;
-            bool big=false;
-            if(lhs->cost1 > rhs->cost1){
-                big=true;
-            }
-            else if(lhs->cost1 == rhs->cost1){
-                if(lhs->cost2 < rhs->cost2){
-                    big=true;
-                }
-            }
-            else{
-                big=false;
-            }
-            return big;
+            return lhs->cost1 > rhs->cost1;
+
+//            bool big=false;
+//            if(lhs->cost1 > rhs->cost1){
+//                big=true;
+//            }
+//            else if(lhs->cost1 == rhs->cost1){
+//                if(lhs->cost2 < rhs->cost2){
+//                    big=true;
+//                }
+//            }
+//            else{
+//                big=false;
+//            }
+//            return big;
         }
     };
     HashFilter* queueFilter = new HashFilter();
@@ -65,6 +66,24 @@ public:
         numFiltered++;
         return false;
     }
+
+    bool push1(SearchNode* newNode) {
+        numPushed++;
+//        if(!this->queueFilter->filter1(newNode)) {
+        if(true) {
+//            cout<<"queue +1 true"<<endl;
+            bool success = this->pushNode(newNode);
+            if(success) {
+                return true;
+            } else {
+                std::cerr << "WARNING: pushNode(Node*) failed somehow.\n";
+                return false;
+            }
+        }
+        numFiltered++;
+        return false;
+    }
+
     int size()
     {
         return nodes.size();

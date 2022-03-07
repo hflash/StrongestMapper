@@ -39,6 +39,7 @@ public:
 
     //search full path in sn->remainGate
     SearchResult SearchCircuit(SearchNode* sn);
+    SearchResult SearchCircuit1(SearchNode* sn);
     //smooth search
     SearchResult SearchSmoothWithInitialMapping(vector<int> mapping,int k);
 
