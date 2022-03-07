@@ -34,23 +34,38 @@ void PrintPath(SearchResult a) {
 }
 
 int main() {
-    string fname = "../circuits/small/3_17_13.qasm";
+    string fname = "../circuits/small/test.qasm";
+    string fname1 = "../circuits/small/4gt13_92.qasm";
     vector<vector<int>> coupling;
-    coupling = {{0, 1},
-                {1, 2},
-                {2, 3},
-                {3, 4}};
-    Environment *env = new Environment(fname, coupling);
-    DefaultExpander *exp = new DefaultExpander(env);
-    vector<int> mapping;
-    for(int i=0;i<env->getQubitNum();i++){
-        mapping.push_back(i);
-    }
+    vector<vector<int>> coupling_qx2,coupling_1x5;
+    coupling_1x5={{0, 1},{1, 2},{2,3},{3,4}};
+    coupling_qx2={{0, 1},{1, 2},{2,3},{3,4},{0,2},{2,4}};
+    Environment *env = new Environment(fname, coupling_1x5);
+    vector<int> mapping={0,1,2,3,4};
+//    for(int i=0;i<env->getQubitNum();i++){
+//        mapping.push_back(i);
+//    }
+
+
     vector<vector<int>> dagTable = env->getGateDag();
-    cout << "dag depth : " << dagTable[0].size() << endl;
+
+    vector<int> executedgateIDs={};
+    vector<vector<int>> dagTable5=env->getNewKLayerDag(executedgateIDs,8);
     Search *sr = new Search(env);
-    SearchResult a = sr->SearchSmoothWithInitialMapping(mapping, 5);
+    vector<int> qubitSate={0,0,0,0,0};
+    vector<ActionPath> newPath;
+    SearchNode *sn =new SearchNode(mapping,qubitSate,dagTable5, env, 1, newPath);
+//    sn->PrintNode();
+    SearchResult a = sr->SearchCircuit(sn);
     PrintPath(a);
-    cout << endl;
+
+
+//    for(int i=4;i<10;i++){
+//        Search *sr = new Search(env);
+//        SearchResult a = sr->SearchSmoothWithInitialMapping(mapping, i);
+//        PrintPath(a);
+//        cout<<"the k is :  "<<i<<"and the depth is : "<<a.finalPath.size()<<endl;
+//    }
+
     return 0;
 }
