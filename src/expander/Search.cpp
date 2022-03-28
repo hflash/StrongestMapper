@@ -236,12 +236,6 @@ vector<SearchResult *> Search::SearchPath(int k, string type) {
 
 
 SearchResult Search::SearchCircuit(SearchNode *sn) {
-//    for(int i=0;i<sn->dagTable[0].size();i++){
-//        for(int j=0;j<sn->dagTable.size();j++){
-//            cout<<sn->dagTable[j][i]<<" ";
-//        }
-//        cout<<endl;
-//    }
     DefaultQueue *nodeQueue = new DefaultQueue();
     nodeQueue->push(sn);
     DefaultExpander nodeExpander(this->env);
@@ -461,8 +455,6 @@ SearchResult Search::SearchCircuit1(SearchNode *sn) {
             it1=nodeQueue1->pop();
             nodeQueue->push1(it1);
         }
-        cout<<"------------------------------------------------------------------"<<endl;
-        cout<<"------------------------------------------------------------------"<<endl<<endl;
         expandeNode = nodeQueue->pop();
         ifFind=nodeExpander.expand1(nodeQueue, expandeNode);
         searchNum.push_back(nodeExpander.expandeNum);

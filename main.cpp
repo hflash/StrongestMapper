@@ -35,29 +35,23 @@ void PrintPath(SearchResult a) {
 
 int main() {
     string fname = "../circuits/small/test.qasm";
-    string fname1 = "../circuits/small/4gt13_92.qasm";
+    string fname1 = "../circuits/small/4gt11_84.qasm";
     vector<vector<int>> coupling;
     vector<vector<int>> coupling_qx2,coupling_1x5;
     coupling_1x5={{0, 1},{1, 2},{2,3},{3,4}};
     coupling_qx2={{0, 1},{1, 2},{2,3},{3,4},{0,2},{2,4}};
-    Environment *env = new Environment(fname, coupling_1x5);
+    Environment *env = new Environment(fname1, coupling_1x5);
     vector<int> mapping={0,1,2,3,4};
-//    for(int i=0;i<env->getQubitNum();i++){
-//        mapping.push_back(i);
-//    }
-
-
     vector<vector<int>> dagTable = env->getGateDag();
-
     vector<int> executedgateIDs={};
-    vector<vector<int>> dagTable5=env->getNewKLayerDag(executedgateIDs,8);
+    vector<vector<int>> dagTable5=env->getNewKLayerDag(executedgateIDs,15);
     Search *sr = new Search(env);
     vector<int> qubitSate={0,0,0,0,0};
     vector<ActionPath> newPath;
     SearchNode *sn =new SearchNode(mapping,qubitSate,dagTable5, env, 1, newPath);
     sn->nodeID=1;
 //    sn->PrintNode();
-    SearchResult a = sr->SearchCircuit1(sn);
+    SearchResult a = sr->SearchCircuit(sn);
     PrintPath(a);
 
 

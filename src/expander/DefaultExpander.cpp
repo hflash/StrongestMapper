@@ -379,12 +379,6 @@ bool DefaultExpander::expand1(DefaultQueue *nodes, SearchNode *node) {
     else{
         //先执行所有的swap组合，然后再是能执行的ready gate都执行
         vector<vector<vector<int>>> possibleSwap=this->SwapCom1(node->logicalQubitState,node->l2pMapping,node->dagTable);
-        for(int i=0;i<possibleSwap.size(); i++){
-            for(int j=0;j<possibleSwap[i].size();j++){
-                cout<<"swap:"<<possibleSwap[i][j][0]<<" "<<possibleSwap[i][j][1]<<"  ";
-            }
-            cout<<endl;
-        }
 /*        for(int i=0;i<possibleSwap.size();i++){
             for(int j=0;j<possibleSwap[i].size();j++){
                 cout<<"swap: ["<<possibleSwap[i][j][0]<<" "<<possibleSwap[i][j][1]<<"] ";
@@ -508,7 +502,7 @@ bool DefaultExpander::expand1(DefaultQueue *nodes, SearchNode *node) {
                 nodeCount++;
                 SearchNode* sn= new SearchNode(mapping,qubitState1,newDagtable,env,timeStamp,path);
                 sn->nodeID=nodeCount;
-                sn->PrintNode();
+                //sn->PrintNode();
 
                 nodes->push(sn);
                 //cout<<endl;

@@ -31,6 +31,9 @@ inline void hash_combine(std::size_t &seed, const T &v) {
  * 2. remainGate: set of set of remaining gates in original circuits
  * To make filter more efficient to mark some dead search nodes in queue
  * */
+
+//inline int catchUp(SearchNode* )
+
 inline std::size_t hashFunc2(SearchNode *node) {
 
     std::size_t hashResult = 0;

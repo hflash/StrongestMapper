@@ -64,6 +64,7 @@ void SearchNode::GetReadyGate() {
     }
 }
 
+
 vector<int> SearchNode::GetReadyGate(vector<vector<int>> dTable, vector<int> qubitState) {
     vector<int> frontLayerGate = this->environment->getFrontLayer(dTable);
     vector<int> readyGates;
