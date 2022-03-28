@@ -54,7 +54,7 @@ vector<vector<int>> Environment::generateDag(vector<int> gateIDs) {
         for (int i = 0; i < newDag.size(); i++) {
             for (int j = 0; j < nowDagDepth; j++)
                 if (newDag[i][j] != 0) {
-                    this->gateInfo.find(newDag[i][j])->second.criticality = dagDepth - j;
+                    this->gateInfo.find(newDag[i][j])->second.criticality = newDag.size() - j;
                 }
         }
 
@@ -250,7 +250,7 @@ vector<vector<int>> Environment::getNewKLayerDag(vector<int> executedgateIDs,int
     for (int i = 0; i < newKLayerDag.size(); i++) {
         for (int j = 0; j < nowDagDepth; j++)
             if (newKLayerDag[i][j] != 0) {
-                this->gateInfo.find(newKLayerDag[i][j])->second.criticality = dagDepth - j;
+                this->gateInfo.find(newKLayerDag[i][j])->second.criticality = newKLayerDag[0].size() - j;
             }
     }
  /*   for (int i = 0; i < nowDagDepth; i++) {

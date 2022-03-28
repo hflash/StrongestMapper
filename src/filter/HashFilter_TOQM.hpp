@@ -48,23 +48,94 @@ inline std::size_t hashFunc2(SearchNode * n) {
     return hash_result;
 }
 
+int FindLastExcutedGate(SearchNode* sn,int logicalQubit){
+    //找到当前状态sn中，logicalQubit上一个执行了的门，如果没有则返回0
+    Environment* env=sn->environment;
+    int lastGate=0;
+    int firstGate=0;
+    //找到接下来在logical qubit上要执行的下一个门，如果接下来没有待执行的门，那么=0
+    for(int i=0;i<sn->dagTable[logicalQubit].size();i++){
+        if(sn->dagTable[logicalQubit][i]!=0){
+            firstGate=sn->dagTable[logicalQubit][i];
+            break;
+        }
+    }
+    int i;
+    vector<vector<int>> allDagTable=env->getGateDag();
+    for(i=allDagTable[logicalQubit].size()-1;i>=0;i--){
+        if(allDagTable[logicalQubit][i]==firstGate){
+            break;
+        }
+    }
+    for(int j=i-1;j>=0;j--){
+        if(allDagTable[logicalQubit][j]!=0){
+            lastGate=allDagTable[logicalQubit][j];
+            break;
+        }
+    }
+    return lastGate;
+}
+
+bool isMin(Environment* env,int a,int b,int x){
+    vector<vector<int>> allDagTable=env->getGateDag();
+    for(int i=0;i<allDagTable[0].size();i++){
+        if(allDagTable[x][i]==a){
+            return true;
+        }
+        if(allDagTable[x][i]==b){
+            return false;
+        }
+    }
+}
+
+bool isFather(SearchNode* a,SearchNode* b){
+    int apath=a->timeStamp;
+    int bpath=b->timeStamp;
+    int minPath=0;
+    if(apath<bpath){
+        minPath=apath;
+    }
+    else{
+        minPath=bpath;
+    }
+    for(int i=0;i<minPath;i++){
+        if(a->actionPath[i].pattern!=b->actionPath[i].pattern){
+            return false;
+        }
+        else{
+            if(a->actionPath[i].actions.size()!=b->actionPath[i].actions.size()){
+                return false;
+            }
+            else{
+                int pathSize=a->actionPath[i].actions.size();
+                for(int j=0;j<pathSize;j++){
+                    if(a->actionPath[i].actions[j].gateID!=b->actionPath[i].actions[j].gateID){
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
 class HashFilter_TOQM {
 private:
     int numFiltered = 0;
     int numMarkedDead = 0;
     bool foundConflict = false;
-    std::unordered_map<std::size_t, vector<SearchNode*> > hashmap;
+    std::unordered_map<std::size_t, vector<SearchNode *> > hashmap;
 
 public:
-    void deleteRecord(SearchNode * n) {
+    void deleteRecord(SearchNode *n) {
         std::size_t hash_result = hashFunc2(n);
-        vector<SearchNode*> * mapValue = &this->hashmap[hash_result];//Note: I'm terrified of accidentally making an actual copy of the vector here
+        vector<SearchNode *> *mapValue = &this->hashmap[hash_result];//Note: I'm terrified of accidentally making an actual copy of the vector here
         //assert(mapValue->size() > 0);
-        for(unsigned int blah = 0; blah <  mapValue->size(); blah++) {
-            SearchNode * n2 = (*mapValue)[blah];
-            if(n2 == n) {
-                if(mapValue->size() > 1 && blah < mapValue->size() - 1) {
-                    std::swap((*mapValue)[blah],(*mapValue)[mapValue->size()-1]);
+        for (unsigned int blah = 0; blah < mapValue->size(); blah++) {
+            SearchNode *n2 = (*mapValue)[blah];
+            if (n2 == n) {
+                if (mapValue->size() > 1 && blah < mapValue->size() - 1) {
+                    std::swap((*mapValue)[blah], (*mapValue)[mapValue->size() - 1]);
                 }
                 mapValue->pop_back();
                 return;
@@ -73,7 +144,7 @@ public:
         //assert(false && "hashfilter2 failed to find node to delete");
     }
 
-    bool filter(SearchNode * newNode) {
+    bool filter(SearchNode *newNode) {
         //if(newNode->parent && newNode->parent->dead) {
         //	return true;
         //}
@@ -83,16 +154,16 @@ public:
         std::size_t hash_result = hashFunc2(newNode);
 
         int swapCost = 3;
-        vector<SearchNode*> * mapValue = &this->hashmap[hash_result];//Note: I'm terrified of accidentally making an actual copy of the vector here
-        for(unsigned int blah = mapValue->size() - 1; blah < mapValue->size() && blah >= 0; blah--) {
-            SearchNode * candidate = (*mapValue)[blah];
+        vector<SearchNode *> *mapValue = &this->hashmap[hash_result];//Note: I'm terrified of accidentally making an actual copy of the vector here
+        for (unsigned int blah = mapValue->size() - 1; blah < mapValue->size() && blah >= 0; blah--) {
+            SearchNode *candidate = (*mapValue)[blah];
 
             //if there's a very big gap between nodes' progress then we probably won't benefit from comparing them:
             //if(candidate->cycle - newNode->cycle >= 6 || newNode->cycle - candidate->cycle >= 6) {
             //	continue;
             //}
 
-            if(candidate->dead) {
+            if (candidate->dead) {
                 continue;
             } //else if(candidate->parent && candidate->parent->dead) {
             //	candidate->dead = true;
@@ -103,24 +174,24 @@ public:
             bool canMarkDead = false;
 
             int cycleDiff = newNode->timeStamp - candidate->timeStamp;
-            if(cycleDiff < 0) {
+            if (cycleDiff < 0) {
                 cycleDiff = -cycleDiff;
             }
 
             ///*
             //check for simple descendant relationship (without additional gates)
             //需要写如何判断这个两个结点是同一个结点长出来的，具有前驱后继关系
-            if(newNode->scheduled == candidate->scheduled) {
+            if (isFather(candidate, newNode)) {
                 willFilter = false;
                 willMarkDead = false;
             }
 
-            if(willFilter || willMarkDead) {
-                if(this->foundConflict || blah == mapValue->size() - 1) {
+            if (willFilter || willMarkDead) {
+                if (this->foundConflict || blah == mapValue->size() - 1) {
                     bool conflict = false;
-                    for(int x = 0; x < numQubits - 1; x++) {
-                        if(candidate->l2pMapping[x] != newNode->l2pMapping[x]) {
-                            if(!this->foundConflict) {
+                    for (int x = 0; x < numQubits - 1; x++) {
+                        if (candidate->l2pMapping[x] != newNode->l2pMapping[x]) {
+                            if (!this->foundConflict) {
                                 std::cerr << "//WARNING: hash conflict detected.\n";
                                 this->foundConflict = true;
                             }
@@ -129,7 +200,7 @@ public:
                             break;
                         }
                     }
-                    if(conflict) {
+                    if (conflict) {
                         continue;
                     }
                 }
@@ -137,111 +208,107 @@ public:
 
             //set willFilter and willMarkDead to false as appropriate based on qubit progress
             //x是逻辑比特
-            for(int x = 0; (willFilter || willMarkDead) && x < numQubits; x++) {
-                ScheduledGate * lastCanGate = candidate->lastNonSwapGate[x];
-                ScheduledGate * lastNewGate = newNode->lastNonSwapGate[x];
-                int lastCanGateID = candidate
-                int qubit = newNode->laq[x];//physical qubit containing logical qubit x
+            for (int x = 0; (willFilter || willMarkDead) && x < numQubits; x++) {
+
+                int lastCanGateID = FindLastExcutedGate(candidate, x);
+                int lastNewGateID = FindLastExcutedGate(newNode, x);
+                int logicalQubit = x;//x在这里是逻辑比特
                 int canBusy = 0;
-
-
                 int newBusy = 0;
-                if(qubit >= 0) {
-                    canBusy = candidate->busyCycles(qubit);
-                    newBusy = newNode->busyCycles(qubit);
+                if (logicalQubit >= 0) {
+                    canBusy = candidate->logicalQubitState[logicalQubit];
+                    newBusy = newNode->logicalQubitState[logicalQubit];
                 }
-                if(lastNewGate && !lastCanGate) {//newNode has scheduled gates that candidate hasn't scheduled
+                if (lastNewGateID && !lastCanGateID) {//newNode has scheduled gates that candidate hasn't scheduled
                     //ToDo can maybe avoid setting to false here if candidate
                     // has made more progress on a high-latency swap?
                     willFilter = false;
                     canMarkDead = true;
                     //ToDo can probably be more selective here too:
-                    if(newBusy > 1 && candidate->timeStamp + canBusy < newNode->timeStamp + newBusy) {
+                    if (newBusy > 1 && candidate->timeStamp + canBusy < newNode->timeStamp + newBusy) {
                         willMarkDead = false;
                     }
-                }
-                else if(lastCanGate && !lastNewGate) {//candidate has more scheduled gates for this qubit
+                } else if (lastCanGateID && !lastNewGateID) {//candidate has more scheduled gates for this qubit
                     //ToDo can maybe avoid setting to false here if newNode has made more progress on a high-latency swap?
                     willMarkDead = false;
                     //ToDo can probably be more selective here too:
-                    if(canBusy > 1 && newNode->timeStamp + newBusy < candidate->timeStamp + canBusy) {
+                    if (canBusy > 1 && newNode->timeStamp + newBusy < candidate->timeStamp + canBusy) {
                         willFilter = false;
                     }
-                }
-                else if((lastCanGate && lastNewGate) || (!lastCanGate && !lastNewGate)) {
-                    if(!lastCanGate || lastCanGate->gate == lastNewGate->gate) {//same (un)scheduled gates for this qubit
+                } else if ((lastCanGateID && lastNewGateID) || (!lastCanGateID && !lastNewGateID)) {
+                    if (!lastCanGateID || lastCanGateID == lastNewGateID) {//same (un)scheduled gates for this qubit
                         //compare busyness
-                        if(qubit >= 0) {
-                            if((willFilter || !canMarkDead) && canBusy > 1) {
-                                if(newBusy) {//both nodes are busy
+                        if (logicalQubit >= 0) {
+                            if ((willFilter || !canMarkDead) && canBusy > 1) {
+                                if (newBusy) {//both nodes are busy
                                     int candidateCycle = canBusy + candidate->timeStamp;
                                     int newCycle = newBusy + newNode->timeStamp;
-                                    if(candidateCycle > newCycle) {
+                                    if (candidateCycle > newCycle) {
                                         willFilter = false;
                                         canMarkDead = true;
                                     }
                                 } else {//only candidate is busy
                                     int candidateCycle = canBusy + candidate->timeStamp;
-                                    if(candidateCycle > newNode->timeStamp) {
+                                    if (candidateCycle > newNode->timeStamp) {
                                         willFilter = false;
                                         canMarkDead = true;
                                     }
                                 }
                             }
-                            if(willMarkDead && newBusy > 1) {
-                                if(canBusy) {//both nodes are busy
+                            if (willMarkDead && newBusy > 1) {
+                                if (canBusy) {//both nodes are busy
                                     int candidateCycle = canBusy + candidate->timeStamp;
                                     int newCycle = newBusy + newNode->timeStamp;
-                                    if(newCycle > candidateCycle) {
+                                    if (newCycle > candidateCycle) {
                                         willMarkDead = false;
                                     }
                                 } else {//only newNode is busy
                                     int newCycle = newBusy + newNode->timeStamp;
-                                    if(newCycle > candidate->timeStamp) {
+                                    if (newCycle > candidate->timeStamp) {
                                         willMarkDead = false;
                                     }
                                 }
                             }
                         }
-                    }
-                    else if(lastCanGate->gate->criticality > lastNewGate->gate->criticality) {//newNode has scheduled gates candidate hasn't
-                        if(willFilter && (newBusy <= 1 || newBusy <= canBusy || newNode->cycle - candidate->cycle >= swapCost)) {
+                    } else if (isMin(newNode->environment, lastCanGateID, lastNewGateID,
+                                     logicalQubit)) {//newNode has scheduled gates candidate hasn't
+                        if (willFilter && (newBusy <= 1 || newBusy <= canBusy ||
+                                           newNode->timeStamp - candidate->timeStamp >= swapCost)) {
                             willFilter = false;
                             canMarkDead = true;
                         }
-                    }
-                    else if(lastCanGate->gate->criticality < lastNewGate->gate->criticality) {//candidate has more scheduled gates for this qubit
-                        if(willMarkDead && (canBusy <= 1 || canBusy <= newBusy || candidate->cycle - newNode->cycle >= swapCost)) {
+                    } else if (isMin(newNode->environment, lastNewGateID, lastCanGateID,
+                                     logicalQubit)) {//candidate has more scheduled gates for this qubit
+                        if (willMarkDead && (canBusy <= 1 || canBusy <= newBusy ||
+                                             candidate->timeStamp - newNode->timeStamp >= swapCost)) {
                             willMarkDead = false;
                         }
+                    } else {
+                        cout << "error\n";
                     }
-                    else {
-                        cout<<"error\n";
-                    }
-                }
-                else {
-                    cout<<"error\n";
+                } else {
+                    cout << "error\n";
                 }
             }
 
-            if(!canMarkDead || willFilter) {
+            if (!canMarkDead || willFilter) {
                 willMarkDead = false;
             }
-            if(willMarkDead) {
+            if (willMarkDead) {
                 candidate->dead = true;
                 numMarkedDead++;
             }
 
             //remove dead node from vector
-            if(candidate->dead) {
+            if (candidate->dead) {
 
-                if(mapValue->size() > 1 && blah < mapValue->size() - 1) {
-                    std::swap((*mapValue)[blah],(*mapValue)[mapValue->size()-1]);
+                if (mapValue->size() > 1 && blah < mapValue->size() - 1) {
+                    std::swap((*mapValue)[blah], (*mapValue)[mapValue->size() - 1]);
                 }
                 mapValue->pop_back();
             }
 
-            if(willFilter) {
+            if (willFilter) {
                 /*
                 //if(newNode->debugVal) {
                     std::cerr << "Filtering node " << newNode->debugID << " (@cycle " << newNode->cycle << ") \n";
@@ -250,7 +317,7 @@ public:
                     printNodee(std::cerr, candidate->scheduled);
                     std::cerr << "\n";
                 //}
-                //*/
+  ;              //*/
                 numFiltered++;
                 return true;
             }
@@ -258,7 +325,7 @@ public:
         mapValue->push_back(newNode);
 
         return false;
+    };
+
 };
-
-
 #endif //STRONGESTMAPPER_HASHFILTER_TOQM_HPP

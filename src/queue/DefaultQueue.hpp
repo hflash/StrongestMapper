@@ -10,6 +10,7 @@
 #include "../search/SearchNode.h"
 #include "Queue.h"
 #include "../filter/HashFilter.hpp"
+#include "../filter//HashFilter_TOQM.hpp"
 //#include "../filter/Filter.h"
 
 class DefaultQueue :public Queue{
@@ -19,7 +20,7 @@ private:
         bool operator()(const SearchNode* lhs, const SearchNode* rhs) const
         {
             return lhs->cost1 > rhs->cost1;
-
+/*
 //            bool big=false;
 //            if(lhs->cost1 > rhs->cost1){
 //                big=true;
@@ -32,7 +33,7 @@ private:
 //            else{
 //                big=false;
 //            }
-//            return big;
+//            return big;*/
         }
     };
     HashFilter* queueFilter = new HashFilter();
