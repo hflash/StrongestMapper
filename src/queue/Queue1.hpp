@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include "../search/SearchNode.h"
+#include "../filter//HashFilter_TOQM.hpp"
 
 extern bool _verbose;
 

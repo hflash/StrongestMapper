@@ -636,3 +636,155 @@ bool DefaultExpander::IsMoreSwap(SearchNode *node) {
     }
     return moreSwap;
 }
+
+bool DefaultExpander::expand2(DefaultQueue *nodes, SearchNode *node, HashFilter_TOQM* filter_T) {
+    int countNum=0;
+    int cycleNum=0;
+    //dead or not 如果这个结点已经死了，那么意味着队列里有比这个结点好的结点都使用过了
+    if(node->dead==true){
+        this->expandeNum=this->expandeNum+countNum;
+        return false;
+    }
+    if(this->IsMoreSwap(node)==false){
+        // no need for swap
+        this->expandWithoutSwap(node);
+        return true;
+    }
+    else{
+        //先执行所有的swap组合，然后再是能执行的ready gate都执行
+        vector<vector<vector<int>>> possibleSwap=this->SwapCom1(node->logicalQubitState,node->l2pMapping,node->dagTable);
+        for(int i=0; i < possibleSwap.size(); i++){
+            //执行所有的swap组合
+            vector<int> qubitState1=node->logicalQubitState;
+            vector<int> mapping=node->l2pMapping;
+            vector<ScheduledGate> thisTimeSchduledGate;
+            for(int j=0;j<possibleSwap[i].size(); j++){
+                int a=possibleSwap[i][j][0];
+                int b=possibleSwap[i][j][1];
+                int temp;
+                temp=mapping[a];
+                mapping[a]=mapping[b];
+                mapping[b]=temp;
+                qubitState1[mapping[a]]=3;
+                qubitState1[mapping[b]]=3;
+                ScheduledGate Sg;
+                Sg.targetQubit=possibleSwap[i][j][0];
+                Sg.controlQubit=possibleSwap[i][j][1];
+                Sg.gateName="swap";
+                Sg.gateID=-1;
+                thisTimeSchduledGate.push_back(Sg);
+            }
+            //计算p2lmapping 每个逻辑比特上的物理比特
+            vector<int> p2lmapping(mapping.size(),-1);
+            for(int j=0;j<mapping.size();j++){
+                p2lmapping[mapping[j]]=j;
+            }
+            //执行所有能执行的门，依赖关系是在第一层没有前驱结点，比特要空闲，双比特门要相邻
+            vector<int> newReadyGate;
+            vector<int> frontLayerGate = this->env->getFrontLayer(node->dagTable);
+            for (int j = 0; j < frontLayerGate.size(); j++) {
+                int gateid = frontLayerGate[j];
+                GateNode nowGate = this->env->gateInfo.find(gateid)->second;
+                //single qubit gate
+                int ii = p2lmapping[nowGate.targetQubit];
+                int jj = p2lmapping[nowGate.controlQubit];
+                if (nowGate.controlQubit == -1) {
+                    if (qubitState1[nowGate.targetQubit] == 0) {
+                        newReadyGate.push_back(gateid);
+                    }
+                }
+                    //two qubits gate
+                else if (qubitState1[nowGate.targetQubit] == 0 && qubitState1[nowGate.controlQubit] == 0 &&
+                         this->env->couplingGraph[ii][jj] == 1) {
+                    newReadyGate.push_back(gateid);
+                } else {
+                }
+            }
+            for(int j=0;j<newReadyGate.size();j++){
+                //Add the actions performed by this step
+                ScheduledGate Sg;
+                Sg.targetQubit=node->p2lMapping[this->env->gateInfo.find(newReadyGate[j])->second.targetQubit];
+                if(this->env->gateInfo.find(newReadyGate[j])->second.controlQubit!=-1){
+                    Sg.controlQubit=node->p2lMapping[this->env->gateInfo.find(newReadyGate[j])->second.controlQubit];
+                }
+                else{
+                    Sg.controlQubit=-1;
+                }
+                Sg.gateName=this->env->gateInfo.find(newReadyGate[j])->second.Name;
+                Sg.gateID=newReadyGate[j];
+                thisTimeSchduledGate.push_back(Sg);
+                //update qubit state
+                qubitState1[this->env->gateInfo.find(newReadyGate[j])->second.targetQubit]=1;
+                if(this->env->gateInfo.find(newReadyGate[j])->second.controlQubit!=-1){
+                    qubitState1[this->env->gateInfo.find(newReadyGate[j])->second.controlQubit]=1;
+                }
+            }
+            //执行完ready gate后，当前结点的状态
+            vector<int> remainGate;
+            for(int j=0;j<node->remainGate.size();j++){
+                bool flag=true;
+                for(int k=0;k<newReadyGate.size();k++){
+                    if(newReadyGate[k]==node->remainGate[j]){
+                        flag=false;
+                        break;
+                    }
+                }
+                if(flag==true){
+                    remainGate.push_back(node->remainGate[j]);
+                }
+            }
+            if(remainGate.size()==0){
+                ActionPath thisAction;
+                thisAction.actions=thisTimeSchduledGate;
+                thisAction.pattern=true;
+                vector<ActionPath> path=node->actionPath;
+                path.push_back(thisAction);
+                this->actionPath=path;
+                this->expandeNum=countNum;
+                return true;
+            }
+            vector<vector<int>> newDagtable=this->env->generateDag(remainGate);
+            //生成新的ActionPath
+            ActionPath thisAction;
+            thisAction.actions=thisTimeSchduledGate;
+            bool IsPattern;
+            if(node->readyGate.size()==newReadyGate.size()){
+                IsPattern=false;
+            }
+            else{
+                IsPattern=true;
+            }
+            thisAction.pattern=IsPattern;
+            vector<ActionPath> path=node->actionPath;
+            path.push_back(thisAction);
+            //qubit state update and time
+            for(int k=0;k<qubitState1.size();k++){
+                if(qubitState1[k]>0){
+                    qubitState1[k]--;
+                }
+            }
+            int timeStamp=node->timeStamp+1;
+            if(this->IsCycle1(path,qubitState1.size())==false){
+                countNum++;
+                SearchNode* sn= new SearchNode(mapping,qubitState1,newDagtable,env,timeStamp,path);
+                //sn->PrintNode();
+                if(!filter_T->filter(sn)){
+                    //cout<<"accept"<<endl;
+                    nodeCount++;
+                    sn->nodeID=nodeCount;
+                    nodes->push(sn);
+                }
+                else{
+                    //cout<<"filter"<<endl;
+                }
+            }
+            else{
+                cycleNum++;
+            }
+        }
+    }
+    this->expandeNum=countNum;
+    this->cycleNum=cycleNum;
+    return false;
+}
+

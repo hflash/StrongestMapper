@@ -42,6 +42,7 @@ public:
     bool expand( DefaultQueue* nodes,SearchNode* node);
 
     bool expand1( DefaultQueue* nodes,SearchNode* node);
+    bool expand2( DefaultQueue* nodes,SearchNode* node,HashFilter_TOQM* filter_T);
     bool IsCycle(vector<ActionPath> actionPath,int qubitNum);
     bool IsCycle1(vector<ActionPath> actionPath,int qubitNum);
 };

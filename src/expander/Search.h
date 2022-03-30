@@ -9,6 +9,8 @@
 #include "../parser/Environment.h"
 #include "DefaultExpander.h"
 #include "../queue/DefaultQueue.hpp"
+#include "../queue/Queue1.hpp"
+#include "../filter/HashFilter_TOQM.hpp"
 #include <string>
 #include <iostream>
 #include <iostream>
@@ -43,6 +45,7 @@ public:
     //search full path in sn->remainGate
     SearchResult SearchCircuit(SearchNode* sn);
     SearchResult SearchCircuit1(SearchNode* sn);
+    SearchResult SearchCircuit2(SearchNode* sn);
     //smooth search
     SearchResult SearchSmoothWithInitialMapping(vector<int> mapping,int k);
 

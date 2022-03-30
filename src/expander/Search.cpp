@@ -273,6 +273,47 @@ SearchResult Search::SearchCircuit(SearchNode *sn) {
     return sr;
 }
 
+SearchResult Search::SearchCircuit2(SearchNode *sn) {
+    DefaultQueue *nodeQueue = new DefaultQueue();
+    HashFilter_TOQM * filterT =new HashFilter_TOQM();
+    nodeQueue->push(sn);
+    DefaultExpander nodeExpander(this->env);
+    vector<int> searchNum;
+    int cycleNum=0;
+    int whilecount=1;
+    while (nodeQueue->size() >= 0) {
+//        cout<<"while count : "<<whilecount<<endl;
+        whilecount++;
+//        cout<<"queue node size : "<<nodeQueue->size()<<endl;
+        bool ifFind;
+        SearchNode *expandeNode;
+        expandeNode = nodeQueue->pop();
+        //cout<<"now "<<nodeQueue->size()<<" node in the queue"<<endl;
+        if(whilecount%2000==0){
+            cout<<"while count : "<<whilecount<<endl;
+            cout<<"queue node size : "<<nodeQueue->size()<<endl;
+            cout<<endl<<endl<<endl;
+            cout<<"father node path length is : "<<expandeNode->actionPath.size()<<" and the timestamp is : "<<expandeNode->timeStamp<<endl;
+            expandeNode->PrintNode();
+        }
+        ifFind=nodeExpander.expand2(nodeQueue, expandeNode,filterT);
+        searchNum.push_back(nodeExpander.expandeNum);
+        cycleNum=cycleNum+nodeExpander.cycleNum;
+        if (ifFind == true) {
+            cout<<"i find it"<<endl;
+            break;
+        }
+    }
+    SearchResult sr;
+    sr.finalPath = nodeExpander.actionPath;
+    sr.searchNodeNum = searchNum;
+    vector<int> queueNum;
+    queueNum.push_back(nodeQueue->numPushed);
+    sr.queueNum = queueNum;
+    sr.cycleNum=cycleNum;
+    return sr;
+}
+
 SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) {
     vector<int> originMapping = mapping;
     int qubitNum = this->env->getQubitNum();
@@ -285,7 +326,7 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
         //如果层数小于k层，那么自己搜索完就好
         SearchNode *sn = new SearchNode(mapping, qubitState, allDag, env, nowTime, path);
         Search *sr = new Search(env);
-        SearchResult a = this->SearchCircuit(sn);
+        SearchResult a = this->SearchCircuit2(sn);
         return a;
     }
     else{

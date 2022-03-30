@@ -23,7 +23,7 @@ inline void hash_combine(std::size_t& seed, const T& v)
 }
 #endif
 
-inline std::size_t hashFunc2(SearchNode * n) {
+inline std::size_t hashFunc3(SearchNode * n) {
     std::size_t hash_result = 0;
     int numQubits = n->qubitNum;
 
@@ -48,7 +48,7 @@ inline std::size_t hashFunc2(SearchNode * n) {
     return hash_result;
 }
 
-int FindLastExcutedGate(SearchNode* sn,int logicalQubit){
+inline int FindLastExcutedGate(SearchNode* sn,int logicalQubit){
     //找到当前状态sn中，logicalQubit上一个执行了的门，如果没有则返回0
     Environment* env=sn->environment;
     int lastGate=0;
@@ -76,7 +76,7 @@ int FindLastExcutedGate(SearchNode* sn,int logicalQubit){
     return lastGate;
 }
 
-bool isMin(Environment* env,int a,int b,int x){
+inline bool isMin(Environment* env,int a,int b,int x){
     vector<vector<int>> allDagTable=env->getGateDag();
     for(int i=0;i<allDagTable[0].size();i++){
         if(allDagTable[x][i]==a){
@@ -86,11 +86,17 @@ bool isMin(Environment* env,int a,int b,int x){
             return false;
         }
     }
+    //只是为了函数正确，不会进行到这一步才返回
+    return true;
 }
 
-bool isFather(SearchNode* a,SearchNode* b){
-    int apath=a->timeStamp;
-    int bpath=b->timeStamp;
+inline bool isFather(SearchNode* a,SearchNode* b){
+//    cout<<"candidate is :"<<endl;
+//    a->PrintNode();
+//    cout<<"newNode is :"<<endl;
+//    b->PrintNode();
+    int apath=a->actionPath.size();
+    int bpath=b->actionPath.size();
     int minPath=0;
     if(apath<bpath){
         minPath=apath;
@@ -98,20 +104,20 @@ bool isFather(SearchNode* a,SearchNode* b){
     else{
         minPath=bpath;
     }
+//    cout<<"minPath is "<<minPath<<"apath is "<<a->actionPath.size()<<" a timestamp is "<<a->timeStamp<<" bpath is "<<b->actionPath.size()<<" b timestamp is "<<b->timeStamp<<endl;
     for(int i=0;i<minPath;i++){
-        if(a->actionPath[i].pattern!=b->actionPath[i].pattern){
+        if(a->actionPath[i].actions.size()!=b->actionPath[i].actions.size()){
+//            cout<<"1 size not = "<<i<<" path"<<endl;
+//            cout<<"candidate size is :"<<a->actionPath[i].actions.size()<<endl;
+//            cout<<"newnode size is :"<<b->actionPath[i].actions.size()<<endl;
             return false;
         }
         else{
-            if(a->actionPath[i].actions.size()!=b->actionPath[i].actions.size()){
-                return false;
-            }
-            else{
-                int pathSize=a->actionPath[i].actions.size();
-                for(int j=0;j<pathSize;j++){
-                    if(a->actionPath[i].actions[j].gateID!=b->actionPath[i].actions[j].gateID){
-                        return false;
-                    }
+            int pathSize=a->actionPath[i].actions.size();
+            for(int j=0;j<pathSize;j++){
+                if(a->actionPath[i].actions[j].gateID!=b->actionPath[i].actions[j].gateID){
+                   //cout<<"2 id not = "<<a->actionPath[i].actions[j].gateID<<" and "<<b->actionPath[i].actions[j].gateID<<endl;
+                    return false;
                 }
             }
         }
@@ -128,7 +134,7 @@ private:
 
 public:
     void deleteRecord(SearchNode *n) {
-        std::size_t hash_result = hashFunc2(n);
+        std::size_t hash_result = hashFunc3(n);
         vector<SearchNode *> *mapValue = &this->hashmap[hash_result];//Note: I'm terrified of accidentally making an actual copy of the vector here
         //assert(mapValue->size() > 0);
         for (unsigned int blah = 0; blah < mapValue->size(); blah++) {
@@ -181,9 +187,12 @@ public:
             ///*
             //check for simple descendant relationship (without additional gates)
             //需要写如何判断这个两个结点是同一个结点长出来的，具有前驱后继关系
+            //cout<<"-------------------------------------------------------------"<<endl;
             if (isFather(candidate, newNode)) {
-                willFilter = false;
-                willMarkDead = false;
+            //if (false) {
+                    willFilter = false;
+                    willMarkDead = false;
+            //        cout<<"father and son "<<endl;
             }
 
             if (willFilter || willMarkDead) {
@@ -309,15 +318,6 @@ public:
             }
 
             if (willFilter) {
-                /*
-                //if(newNode->debugVal) {
-                    std::cerr << "Filtering node " << newNode->debugID << " (@cycle " << newNode->cycle << ") \n";
-                    printNodee(std::cerr, newNode->scheduled);
-                    std::cerr << " based on " << candidate->debugID << " (@cycle " << candidate->cycle << ") \n";
-                    printNodee(std::cerr, candidate->scheduled);
-                    std::cerr << "\n";
-                //}
-  ;              //*/
                 numFiltered++;
                 return true;
             }

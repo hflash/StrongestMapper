@@ -283,7 +283,7 @@ void SearchNode::PrintNode() {
     cout<<endl;
     cout<<"the action path is : \n";
     for(int i=0;i<this->actionPath.size();i++){
-        cout<<"the "<<i<<" step : ";
+        //cout<<"the "<<i<<" step, the step length is"<<actionPath[i].actions.size()<<endl;
         for(int j=0;j<actionPath[i].actions.size();j++){
             cout<<actionPath[i].actions[j].gateID<<" "<<actionPath[i].actions[j].gateName<<"     ";
         }
