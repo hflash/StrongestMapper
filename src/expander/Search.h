@@ -11,6 +11,7 @@
 #include "../queue/DefaultQueue.hpp"
 #include "../queue/Queue1.hpp"
 #include "../filter/HashFilter_TOQM.hpp"
+#include "../filter/HashFilter1_TOQM.hpp"
 #include <string>
 #include <iostream>
 #include <iostream>

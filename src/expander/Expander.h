@@ -10,6 +10,7 @@
 #include "../search/SearchNode.h"
 #include "../filter/Filter.h"
 #include "../filter/HashFilter.hpp"
+#include "../filter/HashFilter1_TOQM.hpp"
 #include "../parser/Environment.h"
 
 class Expander {

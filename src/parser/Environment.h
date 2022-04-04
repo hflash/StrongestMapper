@@ -21,6 +21,7 @@ private:
     vector<int> topoGate;
 public:
     vector<vector<int>> generateDag(vector<int> gateIDs);
+    vector<vector<int>> generateDag1(vector<int> gateIDs);
     vector<vector<int>> couplingGraph;
     vector<vector<int>> coupling;
     vector<vector<int>> MakeCouplingGraph(vector<vector<int>> couplingList);

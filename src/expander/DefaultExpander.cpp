@@ -637,7 +637,7 @@ bool DefaultExpander::IsMoreSwap(SearchNode *node) {
     return moreSwap;
 }
 
-bool DefaultExpander::expand2(DefaultQueue *nodes, SearchNode *node, HashFilter_TOQM* filter_T) {
+bool DefaultExpander::expand2(DefaultQueue *nodes, SearchNode *node, HashFilter_TOQM* filter_T,HashFilter1_TOQM* filter_T1) {
     int countNum=0;
     int cycleNum=0;
     //dead or not 如果这个结点已经死了，那么意味着队列里有比这个结点好的结点都使用过了
@@ -768,7 +768,7 @@ bool DefaultExpander::expand2(DefaultQueue *nodes, SearchNode *node, HashFilter_
                 countNum++;
                 SearchNode* sn= new SearchNode(mapping,qubitState1,newDagtable,env,timeStamp,path);
                 //sn->PrintNode();
-                if(!filter_T->filter(sn)){
+                if(!filter_T->filter(sn) && !filter_T1->filter(sn)){
                     //cout<<"accept"<<endl;
                     nodeCount++;
                     sn->nodeID=nodeCount;

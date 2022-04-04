@@ -276,15 +276,14 @@ SearchResult Search::SearchCircuit(SearchNode *sn) {
 SearchResult Search::SearchCircuit2(SearchNode *sn) {
     DefaultQueue *nodeQueue = new DefaultQueue();
     HashFilter_TOQM * filterT =new HashFilter_TOQM();
+    HashFilter1_TOQM * filterT1 =new HashFilter1_TOQM();
     nodeQueue->push(sn);
     DefaultExpander nodeExpander(this->env);
     vector<int> searchNum;
     int cycleNum=0;
     int whilecount=1;
     while (nodeQueue->size() >= 0) {
-//        cout<<"while count : "<<whilecount<<endl;
         whilecount++;
-//        cout<<"queue node size : "<<nodeQueue->size()<<endl;
         bool ifFind;
         SearchNode *expandeNode;
         expandeNode = nodeQueue->pop();
@@ -296,8 +295,9 @@ SearchResult Search::SearchCircuit2(SearchNode *sn) {
             cout<<"father node path length is : "<<expandeNode->actionPath.size()<<" and the timestamp is : "<<expandeNode->timeStamp<<endl;
             expandeNode->PrintNode();
         }
-        ifFind=nodeExpander.expand2(nodeQueue, expandeNode,filterT);
-        searchNum.push_back(nodeExpander.expandeNum);
+        ifFind=nodeExpander.expand2(nodeQueue, expandeNode,filterT,filterT1);
+        //searchNum.push_back(nodeExpander.expandeNum);
+        searchNum.push_back(nodeQueue->size());
         cycleNum=cycleNum+nodeExpander.cycleNum;
         if (ifFind == true) {
             cout<<"i find it"<<endl;
@@ -348,7 +348,7 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
                 //如果最新的只有k层了，那么就直接搜索完
                 SearchNode *sn = new SearchNode(nowMapping, nowQubitState, kDag, env, nowTime, newPath);
                 Search *sr = new Search(env);
-                SearchResult a = sr->SearchCircuit(sn);
+                SearchResult a = sr->SearchCircuit2(sn);
                 //把最后的每层的数据放到原来的final path里，统计计算swapNum的数目
                 for(int i=0;i<a.finalPath.size();i++){
                     finalPath.push_back(a.finalPath[i]);
@@ -385,7 +385,7 @@ SearchResult Search::SearchSmoothWithInitialMapping(vector<int> mapping, int k) 
                 SearchNode *sn = new SearchNode(nowMapping, nowQubitState, kDag, env, nowTime, newPath);
                 sn->PrintNode();
                 Search *sr = new Search(env);
-                SearchResult a = sr->SearchCircuit(sn);
+                SearchResult a = sr->SearchCircuit2(sn);
                 //取完第一层后的结点状态
                 finalPath.push_back(a.finalPath[0]);
                 for(int i=0;i<a.finalPath.size();i++){

@@ -77,6 +77,65 @@ vector<vector<int>> Environment::generateDag(vector<int> gateIDs) {
 
 }
 
+vector<vector<int>> Environment::generateDag1(vector<int> gateIDs) {
+    vector<vector<int>> newDag;
+    for (int i = 0; i < this->qubitNum; i++) {
+        vector<int> gateOnQubit;
+        newDag.push_back(gateOnQubit);
+    }
+    for(int i=0;i<gateIDs.size();i++) {
+        int nowgateid = gateIDs[i];
+        int controlQubit = this->gateInfo.find(nowgateid)->second.controlQubit;
+        int targetQubit = this->gateInfo.find(nowgateid)->second.targetQubit;
+        if (this->gateInfo.find(nowgateid)->second.Name == "cx") {
+            int controlQubitTime = newDag[controlQubit].size();
+            int targetQubitTime = newDag[targetQubit].size();
+            if (controlQubitTime > targetQubitTime) {
+                for (int i = 0; i < controlQubitTime - targetQubitTime; i++) {
+                    newDag[targetQubit].push_back(0);
+                }
+            } else {
+                for (int i = 0; i < targetQubitTime - controlQubitTime; i++) {
+                    newDag[controlQubit].push_back(0);
+                }
+            }
+            newDag[targetQubit].push_back(nowgateid);
+            newDag[controlQubit].push_back(nowgateid);
+        } else {
+            newDag[targetQubit].push_back(nowgateid);
+        }
+    }
+    int nowDagDepth=0;
+    for (int i = 0; i < newDag.size(); i++) {
+        if (nowDagDepth < newDag[i].size()) {
+            nowDagDepth = newDag[i].size();
+        }
+    }
+    for (int i = 0; i < newDag.size(); i++) {
+        for (int j = newDag[i].size(); j < nowDagDepth; j++) {
+            newDag[i].push_back(0);
+        }
+    }
+    // update the criticality of GateNodes
+    vector<int> lastGateDepth;
+    for(int i=0;i<newDag.size();i++){
+        int maxDepth=newDag[i].size()-1;
+        while(newDag[i][maxDepth]==0){
+            maxDepth--;
+        }
+        lastGateDepth.push_back(maxDepth);
+    }
+    for (int i = 0; i < newDag.size(); i++) {
+        for (int j = 0; j < nowDagDepth; j++)
+            if (newDag[i][j] != 0) {
+                this->gateInfo.find(newDag[i][j])->second.criticality = lastGateDepth[i] - j;
+            }
+    }
+
+    return newDag;
+
+}
+
 vector<vector<int>> Environment::MakeCouplingGraph(vector<vector<int>> coupling) {
     vector<int> row(qubitNum,999);
     vector<vector<int>> couplingGraph;
@@ -138,18 +197,8 @@ Environment::Environment(string name, vector<vector<int>> coupling) {
     for(iter=this->gateInfo.begin();iter!=this->gateInfo.end();iter++){
         gateOrder.push_back(iter->first);
     }
-    this->gateDag=this->generateDag(gateOrder);
+    this->gateDag=this->generateDag1(gateOrder);
     this->dagDepth=this->gateDag[0].size();
-
-//        for(int i=0;i<gateDag.size();i++){
-//            cout<<"i="<<i<<" ";
-//            for(int j=0;j<gateDag[i].size();j++){
-//                cout<<gateDag[i][j]<<" ";
-//            }
-//            cout<<endl;
-//        }
-//        cout<<"-------------------------\n";
-
     //topoGate vector<int>
     for (int i = 0; i < this->dagDepth; i++) {
         set<int> gatesId;
