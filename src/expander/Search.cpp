@@ -296,8 +296,8 @@ SearchResult Search::SearchCircuit2(SearchNode *sn) {
             expandeNode->PrintNode();
         }
         ifFind=nodeExpander.expand2(nodeQueue, expandeNode,filterT,filterT1);
-        //searchNum.push_back(nodeExpander.expandeNum);
-        searchNum.push_back(nodeQueue->size());
+        searchNum.push_back(nodeExpander.expandeNum);
+        //searchNum.push_back(nodeQueue->size());
         cycleNum=cycleNum+nodeExpander.cycleNum;
         if (ifFind == true) {
             cout<<"i find it"<<endl;

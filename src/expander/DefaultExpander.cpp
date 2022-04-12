@@ -768,14 +768,11 @@ bool DefaultExpander::expand2(DefaultQueue *nodes, SearchNode *node, HashFilter_
                 countNum++;
                 SearchNode* sn= new SearchNode(mapping,qubitState1,newDagtable,env,timeStamp,path);
                 //sn->PrintNode();
-                if(!filter_T->filter(sn) && !filter_T1->filter(sn)){
+                if(!filter_T->filter(sn)){
                     //cout<<"accept"<<endl;
                     nodeCount++;
                     sn->nodeID=nodeCount;
                     nodes->push(sn);
-                }
-                else{
-                    //cout<<"filter"<<endl;
                 }
             }
             else{

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="3e012748-055c-4b54-bfcc-937fdddd0792" name="edge2">
+        <fileTransfer rootFolder="/home/qtest/compiler" accessType="SFTP" host="edge.ustclinke.top" port="2202" sshConfigId="8b2fffb2-227a-4882-b9cf-d57f66b74e22" sshConfig="edge@edge.ustclinke.top:2202 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="30000" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

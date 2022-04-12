@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" connectionConfig="{&quot;serverAliveInterval&quot;:30}" host="edge.ustclinke.top" id="8b2fffb2-227a-4882-b9cf-d57f66b74e22" port="2202" nameFormat="DESCRIPTIVE" username="edge" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>
